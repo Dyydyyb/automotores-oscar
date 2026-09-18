@@ -531,10 +531,10 @@
             <div class="filter-selectors-group">
               <select id="stockFilterCategory">
                 <option value="todos">Todas las Categorías</option>
-                <option value="auto">Autos</option>
-                <option value="camioneta">Camionetas / Pick-Ups</option>
-                <option value="camion">Camiones</option>
-                <option value="moto">Motos</option>
+                <option value="autos">Autos</option>
+                <option value="camionetas">Camionetas / Pick-Ups</option>
+                <option value="camiones">Camiones</option>
+                <option value="motos">Motos</option>
               </select>
 
               <select id="stockFilterCondition">
@@ -728,19 +728,28 @@
             </div>
           </div>
 
-          <!-- Gráfico de Flujo de Fondos (Cash Flow) -->
+          <!-- Gráfico de Flujo de Fondos (Cash Flow) con Selector Interactivo de Tipos -->
           <div class="analytics-card" style="margin-bottom:24px;">
             <div class="analytics-header">
               <div>
                 <h3 class="analytics-title">Evolución de Flujo de Fondos (Ingresos vs. Egresos)</h3>
-                <div class="analytics-subtitle">Comparativo mensual de cobranzas efectivas contra gastos operativos</div>
+                <div class="analytics-subtitle">Comparativo mensual de cobranzas efectivas contra gastos operativos y balance neto</div>
               </div>
-              <div style="display:flex; align-items:center; gap:14px; font-size:0.8rem; font-weight:700;">
-                <span style="display:flex; align-items:center; gap:6px;"><span style="width:10px; height:10px; border-radius:50%; background:var(--status-success-text);"></span> Ingresos</span>
-                <span style="display:flex; align-items:center; gap:6px;"><span style="width:10px; height:10px; border-radius:50%; background:var(--brand-red);"></span> Egresos</span>
+              <div class="chart-controls-row">
+                <div style="display:flex; align-items:center; gap:14px; font-size:0.8rem; font-weight:700; margin-right:8px;">
+                  <span style="display:flex; align-items:center; gap:6px;"><span style="width:10px; height:10px; border-radius:50%; background:#166E30;"></span> Ingresos</span>
+                  <span style="display:flex; align-items:center; gap:6px;"><span style="width:10px; height:10px; border-radius:50%; background:#A81E24;"></span> Egresos</span>
+                </div>
+                <div class="chart-type-selector">
+                  <button type="button" class="chart-type-btn chart-cashflow-type-btn active" data-cashflow-type="barra" title="Gráfico de Barras">Barra</button>
+                  <button type="button" class="chart-type-btn chart-cashflow-type-btn" data-cashflow-type="linea" title="Gráfico de Líneas">Línea</button>
+                  <button type="button" class="chart-type-btn chart-cashflow-type-btn" data-cashflow-type="area" title="Gráfico de Contorno / Área">Contorno</button>
+                  <button type="button" class="chart-type-btn chart-cashflow-type-btn" data-cashflow-type="dona" title="Gráfico Tipo Dona">Dona</button>
+                  <button type="button" class="chart-type-btn chart-cashflow-type-btn" data-cashflow-type="torta" title="Gráfico Tipo Torta">Torta</button>
+                </div>
               </div>
             </div>
-            <div id="cashFlowChartContainer" style="min-height:220px;"></div>
+            <div id="cashFlowChartContainer" style="min-height:240px;"></div>
           </div>
 
           <!-- Libro de Movimientos Financieros -->
@@ -821,15 +830,75 @@
         </section>
 
         <!-- VISTAS RESTANTES: CRM, PERMUTAS, TALLER, DOCUMENTACIÓN, AGENDA, REPORTES, PERSONAL, CONFIG -->
-        <!-- CRM -->
+        <!-- ===================================================================
+             VISTA 6: CRM & GESTIÓN DE LEADS
+             =================================================================== -->
         <section class="view-pane" id="view-crm">
           <div class="view-header-row">
             <div class="view-title-wrap">
               <h1>CRM & Gestión de Leads Entrantes</h1>
-              <p>Consultas ingresadas desde el filtro web de Os-Car, WhatsApp y visitas al salón</p>
+              <p>Seguimiento integral de consultas web, WhatsApp y visitas en salón con asignación de asesores</p>
             </div>
-            <button type="button" class="btn-action-quick btn-primary-red" onclick="window.erpApp.openModal('modalNewLead')">+ Nuevo Lead</button>
+            <div class="header-controls-group">
+              <button type="button" class="btn-action-quick btn-primary-red" onclick="window.erpApp.openModal('modalNewLead')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>+ Nuevo Lead Comercial</span>
+              </button>
+            </div>
           </div>
+
+          <!-- KPIs de CRM -->
+          <div class="kpi-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:24px;">
+            <div class="kpi-card" style="border-left:4px solid #1D4ED8;">
+              <span class="kpi-label">Consultas Totales (Mes)</span>
+              <div class="kpi-value-main" id="crmKpiTotal">142 leads</div>
+              <div class="kpi-subtext">Filtro Web Os-Car + WhatsApp + Salón</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #B45309;">
+              <span class="kpi-label">En Seguimiento Activo</span>
+              <div class="kpi-value-main" id="crmKpiActive">42 prospectos</div>
+              <div class="kpi-subtext">Contactados y en negociación</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid var(--brand-red);">
+              <span class="kpi-label">Test Drives Pactados</span>
+              <div class="kpi-value-main" id="crmKpiTestDrives">19 turnos</div>
+              <div class="kpi-subtext">Visitas agendadas para showroom</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #166E30;">
+              <span class="kpi-label">Tasa de Conversión</span>
+              <div class="kpi-value-main" style="color:#166E30;" id="crmKpiConversion">17.6%</div>
+              <div class="kpi-subtext">Operaciones cerradas sobre leads calificados</div>
+            </div>
+          </div>
+
+          <!-- Filtros de CRM -->
+          <div class="analytics-card" style="margin-bottom:24px;">
+            <div class="stock-filter-toolbar" style="margin-bottom:0; padding:0; background:transparent; border:none;">
+              <div class="filter-search-box">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="crmSearchInput" placeholder="Buscar por prospecto, teléfono, vehículo o asesor...">
+              </div>
+              <div class="filter-selectors-group">
+                <select id="crmFilterChannel">
+                  <option value="todos">Todos los Canales</option>
+                  <option value="Filtro Web Os-Car">Filtro Web Os-Car</option>
+                  <option value="WhatsApp Directo">WhatsApp Directo</option>
+                  <option value="Visita Salón">Visita Salón</option>
+                  <option value="Teléfono">Teléfono</option>
+                </select>
+                <select id="crmFilterStage">
+                  <option value="todos">Todas las Etapas</option>
+                  <option value="nuevo">Nuevo Lead</option>
+                  <option value="contactado">Contactado</option>
+                  <option value="test_drive">Test Drive Pactado</option>
+                  <option value="negociacion">En Negociación</option>
+                  <option value="cerrado">Cerrado / Venta</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Grilla de Leads -->
           <div class="analytics-card">
             <div class="erp-table-responsive">
               <table class="erp-data-table">
@@ -838,291 +907,606 @@
                     <th>Prospecto / Contacto</th>
                     <th>Canal de Origen</th>
                     <th>Vehículo de Interés</th>
-                    <th>Asignado a</th>
+                    <th>Asesor Asignado</th>
                     <th>Fecha Ingreso</th>
-                    <th>Estado Comercial</th>
-                    <th>Acción</th>
+                    <th>Etapa Comercial</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Mariano Gómez</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">mariano.g@gmail.com · 11-5421-9988</span></td>
-                    <td><span class="erp-badge badge-web-sync">Filtro Web Os-Car</span></td>
-                    <td>Honda HR-V EX CVT (0KM)</td>
-                    <td>Esteban Morales</td>
-                    <td style="font-family:var(--font-mono); font-size:0.8rem;">17/09/2026</td>
-                    <td><span class="erp-badge badge-status-reservado">En Negociación</span></td>
-                    <td><button type="button" class="btn-action-quick" style="padding:4px 8px;" onclick="window.erpApp.showToast('Abriendo WhatsApp')">WhatsApp</button></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Carlos Benítez</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">11-6321-4477 · Florencio Varela</span></td>
-                    <td><span class="erp-badge badge-0km">WhatsApp Directo</span></td>
-                    <td>Toyota SW4 SRX 2012</td>
-                    <td>Nicolás Ferrero</td>
-                    <td style="font-family:var(--font-mono); font-size:0.8rem;">16/09/2026</td>
-                    <td><span class="erp-badge badge-status-disponible">Contactado</span></td>
-                    <td><button type="button" class="btn-action-quick" style="padding:4px 8px;" onclick="window.erpApp.showToast('Abriendo WhatsApp')">WhatsApp</button></td>
-                  </tr>
-                </tbody>
+                <tbody id="crmTableBody"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- Permutas -->
+        <!-- ===================================================================
+             VISTA 7: TOMA DE USADOS & PERMUTAS
+             =================================================================== -->
         <section class="view-pane" id="view-permutas">
           <div class="view-header-row">
             <div class="view-title-wrap">
               <h1>Toma de Usados & Permutas en Parte de Pago</h1>
-              <p>Tasaciones peritadas, checklist de documentación y vinculación con ventas 0KM / Usados</p>
+              <p>Tasaciones peritadas en salón, checklist mecánico riguroso y vinculación con compras 0KM</p>
             </div>
-            <button type="button" class="btn-action-quick btn-primary-red" onclick="window.erpApp.showToast('Abriendo formulario de tasación')">+ Nueva Tasación</button>
+            <div class="header-controls-group">
+              <button type="button" class="btn-action-quick btn-primary-red" onclick="window.erpApp.showToast('Formulario de Tasación Rápida habilitado')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>+ Nueva Tasación Peritada</span>
+              </button>
+            </div>
           </div>
+
+          <!-- Métricas de Permutas -->
+          <div class="kpi-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:24px;">
+            <div class="kpi-card" style="border-left:4px solid #1D4ED8;">
+              <span class="kpi-label">Permutas Peritadas (Mes)</span>
+              <div class="kpi-value-main">8 unidades</div>
+              <div class="kpi-subtext">Evaluadas por técnicos en taller</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #166E30;">
+              <span class="kpi-label">Monto Total Tasado</span>
+              <div class="kpi-value-main">$98.400.000</div>
+              <div class="kpi-subtext">Valor promedio de toma: $12.300.000</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid var(--brand-red);">
+              <span class="kpi-label">Margen Proyectado en Reventa</span>
+              <div class="kpi-value-main" style="color:var(--brand-red);">$18.200.000</div>
+              <div class="kpi-subtext">Spread promedio: 18.5% post reacondicionamiento</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #B45309;">
+              <span class="kpi-label">En Preparación de Taller</span>
+              <div class="kpi-value-main">3 unidades</div>
+              <div class="kpi-subtext">Alistamiento estético y mecánico previo a salón</div>
+            </div>
+          </div>
+
+          <!-- Tabla de Permutas y Tasaciones -->
           <div class="analytics-card">
+            <div class="analytics-header">
+              <div>
+                <h3 class="analytics-title">Registro de Tasaciones & Usados Recibidos</h3>
+                <div class="analytics-subtitle">Evaluación de estado físico, kilometraje real, antecedentes y precio peritado</div>
+              </div>
+            </div>
             <div class="erp-table-responsive">
               <table class="erp-data-table">
                 <thead>
                   <tr>
                     <th>Unidad Ofrecida en Permuta</th>
-                    <th>Patente / Año</th>
-                    <th>Tasación Peritada</th>
-                    <th>Operación Destino</th>
-                    <th>Estado de Peritaje</th>
-                    <th>Acción</th>
+                    <th>Titular / Celular</th>
+                    <th>Pretendido vs Peritado Os-Car</th>
+                    <th>Margen Proyectado</th>
+                    <th>Checklist Técnico</th>
+                    <th>Estado DNRPA</th>
+                    <th>Estado de Toma</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Ford Fiesta Kinetic Titanium</strong><br><span style="font-size:0.75rem; color:var(--text-muted);">85.000 KM · Gris Plata</span></td>
-                    <td style="font-family:var(--font-mono);">AB-941-CD (2018)</td>
-                    <td style="font-family:var(--font-mono); font-weight:800; color:var(--brand-red);">$10.200.000</td>
-                    <td>V-2026-003 (Peugeot 208)</td>
-                    <td><span class="erp-badge badge-status-disponible">Aprobada e Ingresada</span></td>
-                    <td><button type="button" class="btn-action-quick" style="padding:4px 8px;" onclick="window.erpApp.navigateTo('taller')">Ver en Taller</button></td>
-                  </tr>
-                </tbody>
+                <tbody id="tradeInsTableBody"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- Taller -->
+        <!-- ===================================================================
+             VISTA 8: TALLER & PREPARACIÓN DE INGRESO
+             =================================================================== -->
         <section class="view-pane" id="view-taller">
           <div class="view-header-row">
             <div class="view-title-wrap">
               <h1>Taller & Preparación de Ingreso</h1>
-              <p>Checklist mecánico, detallado estético y registro de gastos para determinación de costo real</p>
+              <p>Flujo operativo de alistamiento, mecánica ligera, chapa, pintura, detailing y control de costos reales</p>
+            </div>
+            <div class="header-controls-group">
+              <button type="button" class="btn-action-quick btn-primary-red" onclick="window.erpApp.showToast('Nueva orden de taller generada')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>+ Nueva Orden de Taller</span>
+              </button>
             </div>
           </div>
+
+          <!-- 5 Etapas del Taller en KPIs -->
+          <div class="kpi-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom:24px;">
+            <div class="kpi-card" style="border-left:4px solid #64748B;">
+              <span class="kpi-label">1. Ingreso & Peritaje</span>
+              <div class="kpi-value-main">1 u.</div>
+              <div class="kpi-subtext">Diagnóstico inicial de ingreso</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #B45309;">
+              <span class="kpi-label">2. Mecánica Ligera</span>
+              <div class="kpi-value-main">1 u.</div>
+              <div class="kpi-subtext">Frenos, distribución, service</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #D97706;">
+              <span class="kpi-label">3. Chapa & Pintura</span>
+              <div class="kpi-value-main">0 u.</div>
+              <div class="kpi-subtext">Retoque de paragolpes y detalles</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #1D4ED8;">
+              <span class="kpi-label">4. Detailing & Lustrado</span>
+              <div class="kpi-value-main">1 u.</div>
+              <div class="kpi-subtext">Tratamiento cerámico e interiores</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #166E30;">
+              <span class="kpi-label">5. Listo para Showroom</span>
+              <div class="kpi-value-main" style="color:#166E30;">1 u.</div>
+              <div class="kpi-subtext">Certificado para venta inmediata</div>
+            </div>
+          </div>
+
+          <!-- Tarjetas del Flujo Operativo Kanban -->
+          <div class="analytics-card" style="margin-bottom:24px;">
+            <div class="analytics-header">
+              <div>
+                <h3 class="analytics-title">Tablero de Flujo Operativo de Acondicionamiento</h3>
+                <div class="analytics-subtitle">Control cronológico y costo acumulado por vehículo en proceso</div>
+              </div>
+            </div>
+            <div id="workshopKanbanContainer" class="workshop-kanban-grid"></div>
+          </div>
+
+          <!-- Tabla Detallada de Taller -->
           <div class="analytics-card">
+            <div class="analytics-header">
+              <div>
+                <h3 class="analytics-title">Libro de Costos y Tareas de Taller</h3>
+                <div class="analytics-subtitle">Registro por vehículo con proveedores de repuestos y fechas de entrega</div>
+              </div>
+            </div>
             <div class="erp-table-responsive">
               <table class="erp-data-table">
                 <thead>
                   <tr>
-                    <th>Unidad en Taller</th>
-                    <th>Patente</th>
-                    <th>Tareas Pendientes</th>
-                    <th>Gastos Acumulados</th>
+                    <th>Orden / Unidad</th>
+                    <th>Etapa Operativa</th>
                     <th>Técnico Responsable</th>
-                    <th>Estado de Ingreso</th>
+                    <th>Prioridad</th>
+                    <th>Tareas & Checklist</th>
+                    <th>Costo Acumulado</th>
+                    <th>Entrega Estimada</th>
+                    <th>Acción</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Toyota SW4 SRX 4x4</strong></td>
-                    <td style="font-family:var(--font-mono);">LKV-892</td>
-                    <td>Cambio de amortiguadores delanteros + Pulido 3M</td>
-                    <td style="font-family:var(--font-mono); font-weight:800;">$1.150.000</td>
-                    <td>Taller Os-Car (Marcelo R.)</td>
-                    <td><span class="erp-badge badge-status-preparacion">En Proceso (75%)</span></td>
-                  </tr>
-                </tbody>
+                <tbody id="workshopTableBody"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- Documentación -->
+        <!-- ===================================================================
+             VISTA 9: GESTORÍA, DOCUMENTACIÓN & TRANSFERENCIAS DNRPA
+             =================================================================== -->
         <section class="view-pane" id="view-documentacion">
           <div class="view-header-row">
             <div class="view-title-wrap">
               <h1>Gestoría, Documentación & Transferencias</h1>
-              <p>Monitoreo de informes de dominio, verificación policial 012, grabado de autopartes y cédulas</p>
+              <p>Monitoreo registral de F08, Verificación Policial F12, Informes de Dominio DNRPA y Cédulas Digitales</p>
+            </div>
+            <div class="header-controls-group">
+              <button type="button" class="btn-action-quick btn-primary-red" onclick="window.erpApp.showToast('Nuevo legajo registral iniciado')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>+ Iniciar Trámite DNRPA</span>
+              </button>
             </div>
           </div>
+
+          <!-- KPIs Registrales -->
+          <div class="kpi-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:24px;">
+            <div class="kpi-card" style="border-left:4px solid #1D4ED8;">
+              <span class="kpi-label">Trámites en Curso</span>
+              <div class="kpi-value-main">4 trámites</div>
+              <div class="kpi-subtext">2 0KM iniciales + 2 usados</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #166E30;">
+              <span class="kpi-label">Finalizados Exitosamente</span>
+              <div class="kpi-value-main" style="color:#166E30;">14 este mes</div>
+              <div class="kpi-subtext">Cédulas verdes y títulos emitidos</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #B45309;">
+              <span class="kpi-label">Con Deuda Registral / Patentes</span>
+              <div class="kpi-value-main" style="color:#B45309;">1 observación</div>
+              <div class="kpi-subtext">VW Gol: Regularización en curso</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid var(--brand-red);">
+              <span class="kpi-label">Tiempo Promedio de Cierre</span>
+              <div class="kpi-value-main">5.2 días</div>
+              <div class="kpi-subtext">DNRPA Seccionales F. Varela / Quilmes</div>
+            </div>
+          </div>
+
+          <!-- Matriz de Requisitos DNRPA -->
           <div class="analytics-card">
+            <div class="analytics-header">
+              <div>
+                <h3 class="analytics-title">Matriz de Control Registral por Operación</h3>
+                <div class="analytics-subtitle">Auditoría obligatoria de los 5 requisitos para entrega segura y libre de contingencias</div>
+              </div>
+            </div>
             <div class="erp-table-responsive">
               <table class="erp-data-table">
                 <thead>
                   <tr>
-                    <th>Trámite / Unidad</th>
-                    <th>Comprador / Titular</th>
-                    <th>Registro Seccional</th>
-                    <th>Documentos Verificados</th>
-                    <th>Estado DNRPA</th>
-                    <th>Vencimiento</th>
+                    <th>Trámite & Unidad</th>
+                    <th>Titular / Comprador</th>
+                    <th>Form 08</th>
+                    <th>Verif. F12</th>
+                    <th>Dominio DNRPA</th>
+                    <th>Libre Deudas</th>
+                    <th>Cédula Digital</th>
+                    <th>Gestor Asignado</th>
+                    <th>Estado</th>
+                    <th>Acción</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>V-2026-001 (Honda HR-V)</strong></td>
-                    <td>Roberto Alejandro Rossi</td>
-                    <td>Registro Automotor N° 2 Quilmes</td>
-                    <td>Título Digital · Form 08D · Verif. Policial</td>
-                    <td><span class="erp-badge badge-status-disponible">Inscripto</span></td>
-                    <td style="font-family:var(--font-mono);">24/09/2026</td>
-                  </tr>
-                </tbody>
+                <tbody id="documentationTableBody"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- Publicación -->
+        <!-- ===================================================================
+             VISTA 10: FOTOS & PUBLICACIÓN WEB MULTICANAL
+             =================================================================== -->
         <section class="view-pane" id="view-publicacion">
           <div class="view-header-row">
             <div class="view-title-wrap">
-              <h1>Publicación & Sincronización Web</h1>
-              <p>Control de unidades publicadas en el catálogo público de automotoresoscar.com.ar</p>
+              <h1>Publicación & Sincronización Web Multicanal</h1>
+              <p>Auditoría de calidad fotográfica, vistas 360°, videos y distribución en la web oficial y MercadoLibre</p>
             </div>
-            <button type="button" class="btn-action-quick btn-primary-red btn-sync-landing">Sincronizar Todo el Catálogo</button>
+            <div class="header-controls-group">
+              <button type="button" class="btn-action-quick btn-primary-red btn-sync-landing">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><polyline points="1 20 1 14 7 14"></polyline><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path></svg>
+                <span>Sincronizar Todo el Catálogo</span>
+              </button>
+            </div>
           </div>
+
+          <!-- KPIs Multimedia -->
+          <div class="kpi-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:24px;">
+            <div class="kpi-card" style="border-left:4px solid #166E30;">
+              <span class="kpi-label">Unidades Publicadas en Web</span>
+              <div class="kpi-value-main" style="color:#166E30;">9 de 10 u.</div>
+              <div class="kpi-subtext">Disponibles en el catálogo público</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #1D4ED8;">
+              <span class="kpi-label">Vistas Acumuladas en Fichas</span>
+              <div class="kpi-value-main">3.664 visitas</div>
+              <div class="kpi-subtext">Tráfico calificado en Septiembre 2026</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid var(--brand-red);">
+              <span class="kpi-label">Leads Web & WhatsApp</span>
+              <div class="kpi-value-main">102 consultas</div>
+              <div class="kpi-subtext">Originados en el botón de WhatsApp directo</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #B45309;">
+              <span class="kpi-label">Calidad Multimedia Media</span>
+              <div class="kpi-value-main">96.8%</div>
+              <div class="kpi-subtext">Fotos HD, formato 16:9 y vistas 360°</div>
+            </div>
+          </div>
+
+          <!-- Grilla de Auditoría Multimedia y Switches -->
           <div class="analytics-card">
-            <p style="margin-bottom:14px; color:var(--text-muted); font-size:0.88rem;">
-              Las unidades marcadas con el switch "Web ON" alimentan directamente el catálogo y el wizard de la landing pública.
-            </p>
-            <div style="display:flex; gap:12px; flex-wrap:wrap;">
-              <span class="erp-badge badge-web-sync">10 Vehículos en Base de Datos</span>
-              <span class="erp-badge badge-0km">9 Unidades con Visibilidad Pública</span>
-              <span class="erp-badge" style="background:var(--brand-red); color:#fff;">3 Unidades en Carrusel Destacado</span>
+            <div class="analytics-header">
+              <div>
+                <h3 class="analytics-title">Control de Canales de Comercialización Digital</h3>
+                <div class="analytics-subtitle">Activación o pausa instantánea de vehículos en la web pública de Os-Car</div>
+              </div>
+            </div>
+            <div class="erp-table-responsive">
+              <table class="erp-data-table">
+                <thead>
+                  <tr>
+                    <th>Vehículo / Identificador</th>
+                    <th>Calidad Fotográfica (HD)</th>
+                    <th>Vista 360° / Video</th>
+                    <th>Canales Activos</th>
+                    <th>Vistas / Leads</th>
+                    <th>Última Sincronización</th>
+                    <th>Visibilidad Web</th>
+                    <th>Acción</th>
+                  </tr>
+                </thead>
+                <tbody id="webPublicationTableBody"></tbody>
+              </table>
             </div>
           </div>
         </section>
 
-        <!-- Agenda -->
+        <!-- ===================================================================
+             VISTA 11: AGENDA DE TURNOS & ENTREGAS
+             =================================================================== -->
         <section class="view-pane" id="view-agenda">
           <div class="view-header-row">
             <div class="view-title-wrap">
-              <h1>Agenda de Turnos & Entregas</h1>
-              <p>Test drives coordinados, peritajes de usados y ceremonia de entrega en salón de ventas</p>
+              <h1>Agenda de Turnos & Entregas en Showroom</h1>
+              <p>Coordinación de ceremonias de entrega de llaves 0KM, test drives en autopista y peritajes en taller</p>
+            </div>
+            <div class="header-controls-group">
+              <button type="button" class="btn-action-quick btn-primary-red" onclick="window.erpApp.showToast('Abriendo calendario de citas')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>+ Agendar Nuevo Turno</span>
+              </button>
             </div>
           </div>
+
+          <!-- KPIs de Agenda -->
+          <div class="kpi-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:24px;">
+            <div class="kpi-card" style="border-left:4px solid var(--brand-red);">
+              <span class="kpi-label">Turnos Confirmados Hoy</span>
+              <div class="kpi-value-main" style="color:var(--brand-red);">2 citas</div>
+              <div class="kpi-subtext">1 Entrega 0KM + 1 Test Drive</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #166E30;">
+              <span class="kpi-label">Entregas de Llaves Programadas</span>
+              <div class="kpi-value-main">3 en la semana</div>
+              <div class="kpi-subtext">Ceremonia en salón con obsequio</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #1D4ED8;">
+              <span class="kpi-label">Test Drives Solicitados</span>
+              <div class="kpi-value-main">5 pactados</div>
+              <div class="kpi-subtext">Ruta coordinada sobre Autopista Bs. As. - La Plata</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #B45309;">
+              <span class="kpi-label">Peritajes Técnicos de Permuta</span>
+              <div class="kpi-value-main">2 pendientes</div>
+              <div class="kpi-subtext">Revisión en fosa de taller mecánico</div>
+            </div>
+          </div>
+
+          <!-- Lista Cronológica de Turnos -->
           <div class="analytics-card">
+            <div class="analytics-header">
+              <div>
+                <h3 class="analytics-title">Cronograma Operativo de Salón</h3>
+                <div class="analytics-subtitle">Detalle de clientes, asesores asignados y envío directo de recordatorio por WhatsApp</div>
+              </div>
+            </div>
             <div class="erp-table-responsive">
               <table class="erp-data-table">
                 <thead>
                   <tr>
-                    <th>Horario</th>
-                    <th>Tipo de Turno</th>
-                    <th>Cliente</th>
-                    <th>Vehículo Asociado</th>
-                    <th>Vendedor</th>
+                    <th>Fecha & Horario</th>
+                    <th>Tipo de Cita</th>
+                    <th>Cliente / Teléfono</th>
+                    <th>Vehículo Asignado</th>
+                    <th>Asesor Comercial</th>
+                    <th>Observaciones Operativas</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td style="font-family:var(--font-mono); font-weight:800;">Hoy · 11:30 hs</td>
-                    <td><span class="erp-badge badge-0km">Entrega de Unidad 0KM</span></td>
-                    <td>Roberto Alejandro Rossi</td>
-                    <td>Honda HR-V EX CVT</td>
-                    <td>Esteban Morales</td>
-                  </tr>
-                </tbody>
+                <tbody id="appointmentsTableBody"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- Reportes -->
+        <!-- ===================================================================
+             VISTA 12: REPORTES EJECUTIVOS & RENTABILIDAD
+             =================================================================== -->
         <section class="view-pane" id="view-reportes">
           <div class="view-header-row">
             <div class="view-title-wrap">
-              <h1>Reportes Ejecutivos & Business Intelligence</h1>
-              <p>Rotación de flota por segmento, rentabilidad neta por marca y análisis predictivo</p>
+              <h1>Reportes Ejecutivos, Rentabilidad & BI</h1>
+              <p>Unit economics por vehículo vendido, margen neto real, rotación de flota y análisis financiero</p>
             </div>
-            <button type="button" class="btn-action-quick" onclick="window.print()">Exportar PDF</button>
+            <div class="header-controls-group">
+              <button type="button" class="btn-action-quick btn-primary-red" onclick="window.print()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                <span>Exportar Informe Oficial (PDF)</span>
+              </button>
+            </div>
           </div>
-          <div class="analytics-card">
-            <h4 style="font-size:1rem; font-weight:800; margin-bottom:8px;">Rotación de Stock por Categoría (Días Promedio de Venta):</h4>
-            <ul style="list-style:none; display:flex; gap:20px; flex-wrap:wrap; font-size:0.88rem;">
-              <li>Autos: <strong>21 días</strong></li>
-              <li>Camionetas Pick-Up: <strong>16 días (Mayor demanda)</strong></li>
-              <li>Camiones: <strong>38 días</strong></li>
-              <li>Motos: <strong>12 días</strong></li>
-            </ul>
-          </div>
-        </section>
 
-        <!-- Personal -->
-        <section class="view-pane" id="view-personal">
-          <div class="view-header-row">
-            <div class="view-title-wrap">
-              <h1>Personal & Equipo de Salón</h1>
-              <p>Ventas, peritos de taller, gestoría y administración de Automotores Os-Car</p>
+          <!-- 4 KPIs de Rentabilidad -->
+          <div class="kpi-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:24px;">
+            <div class="kpi-card" style="border-left:4px solid #166E30;">
+              <span class="kpi-label">Margen Neto Promedio</span>
+              <div class="kpi-value-main" style="color:#166E30;">21.8%</div>
+              <div class="kpi-subtext">+1.6% superior al objetivo fijado</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #1D4ED8;">
+              <span class="kpi-label">Utilidad Neta por Unidad</span>
+              <div class="kpi-value-main">$4.208.000</div>
+              <div class="kpi-subtext">Ticket neto promedio libre de gastos</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid var(--brand-red);">
+              <span class="kpi-label">Rotación Media de Stock</span>
+              <div class="kpi-value-main">24 días</div>
+              <div class="kpi-subtext">Camionetas: 16 días · Autos: 21 días</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #B45309;">
+              <span class="kpi-label">Rentabilidad del Capital Invertido</span>
+              <div class="kpi-value-main">31.4% TNA</div>
+              <div class="kpi-subtext">Rendimiento anualizado del inventario</div>
             </div>
           </div>
+
+          <!-- Tabla de Unit Economics de Unidades Vendidas -->
           <div class="analytics-card">
+            <div class="analytics-header">
+              <div>
+                <h3 class="analytics-title">Desglose de Rentabilidad por Unidad Vendida (Unit Economics)</h3>
+                <div class="analytics-subtitle">Costo de compra, inversión en taller, precio de venta y utilidad neta obtenida</div>
+              </div>
+            </div>
             <div class="erp-table-responsive">
               <table class="erp-data-table">
                 <thead>
                   <tr>
-                    <th>Empleado</th>
-                    <th>Rol en Concesionaria</th>
-                    <th>Sucursal</th>
-                    <th>Antigüedad</th>
-                    <th>Estado</th>
+                    <th>Unidad Vendida / Patente</th>
+                    <th>Adquiriente & Asesor</th>
+                    <th>Precio Venta Real</th>
+                    <th>Costo Adquisición</th>
+                    <th>Inversión en Taller</th>
+                    <th>Utilidad Neta ($)</th>
+                    <th>Margen Neto (%)</th>
+                    <th>Días en Stock</th>
+                    <th>Comprobante</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td><strong>Martín Benítez</strong></td>
-                    <td>Asesor Comercial Senior</td>
-                    <td>Salón San Martín</td>
-                    <td>6 años</td>
-                    <td><span class="erp-badge badge-0km">Activo</span></td>
-                  </tr>
-                  <tr>
-                    <td><strong>Gonzalo Peralta</strong></td>
-                    <td>Asesor Comercial & Peritajes</td>
-                    <td>Salón San Martín</td>
-                    <td>4 años</td>
-                    <td><span class="erp-badge badge-0km">Activo</span></td>
-                  </tr>
-                </tbody>
+                <tbody id="reportsProfitabilityTableBody"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- Configuración -->
+        <!-- ===================================================================
+             VISTA 13: PERSONAL, RRHH & EQUIPO DE SALÓN
+             =================================================================== -->
+        <section class="view-pane" id="view-personal">
+          <div class="view-header-row">
+            <div class="view-title-wrap">
+              <h1>Personal, Asesores & Equipo de Salón</h1>
+              <p>Nómina comercial, jefes de taller, gestoría registral y administración de Automotores Os-Car</p>
+            </div>
+            <div class="header-controls-group">
+              <button type="button" class="btn-action-quick btn-primary-red" onclick="window.erpApp.showToast('Formulario de alta de empleado disponible')">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>+ Registrar Colaborador</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- KPIs de RRHH -->
+          <div class="kpi-cards-grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); margin-bottom:24px;">
+            <div class="kpi-card" style="border-left:4px solid #1D4ED8;">
+              <span class="kpi-label">Equipo Activo</span>
+              <div class="kpi-value-main">6 colaboradores</div>
+              <div class="kpi-subtext">Salón Central Av. San Martín</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #166E30;">
+              <span class="kpi-label">Fuerza Comercial</span>
+              <div class="kpi-value-main">3 asesores</div>
+              <div class="kpi-subtext">Atención presencial y CRM web</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid #B45309;">
+              <span class="kpi-label">Taller & Peritajes</span>
+              <div class="kpi-value-main">2 especialistas</div>
+              <div class="kpi-subtext">Mecánica integral y estética</div>
+            </div>
+            <div class="kpi-card" style="border-left:4px solid var(--brand-red);">
+              <span class="kpi-label">Gestoría & Registral</span>
+              <div class="kpi-value-main">1 mandataria</div>
+              <div class="kpi-subtext">Matrícula nacional DNRPA</div>
+            </div>
+          </div>
+
+          <!-- Grilla de Colaboradores -->
+          <div id="staffGridContainer" class="staff-cards-grid" style="margin-bottom:24px;"></div>
+        </section>
+
+        <!-- ===================================================================
+             VISTA 14: CONFIGURACIÓN, PARÁMETROS & AUDITORÍA INMUTABLE
+             =================================================================== -->
         <section class="view-pane" id="view-configuracion">
           <div class="view-header-row">
             <div class="view-title-wrap">
-              <h1>Auditoría del Sistema & Seguridad</h1>
-              <p>Registro inmutable de transacciones, cambios de precios y control de accesos por rol</p>
+              <h1>Configuración Institucional & Auditoría</h1>
+              <p>Parámetros fiscales de la concesionaria, claves de sincronización y registro inmutable de auditoría</p>
+            </div>
+            <div class="header-controls-group">
+              <button type="button" class="btn-action-quick btn-primary-red" onclick="window.erpApp.saveCompanySettings()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                <span>Guardar Parámetros</span>
+              </button>
             </div>
           </div>
+
+          <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap:24px; margin-bottom:24px;">
+            <!-- Formulario de Configuración de Empresa -->
+            <div class="analytics-card">
+              <div class="analytics-header">
+                <div>
+                  <h3 class="analytics-title">Identidad & Datos Fiscales Oficiales</h3>
+                  <div class="analytics-subtitle">Automotores Os-Car · Florencio Varela</div>
+                </div>
+              </div>
+              <form id="formCompanySettings" style="display:flex; flex-direction:column; gap:14px;">
+                <div>
+                  <label style="display:block; font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Razón Social</label>
+                  <input type="text" id="cfgCompanyName" value="Os-Car Automotores S.R.L." style="width:100%; padding:9px 12px; border:1px solid var(--border-subtle); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-weight:700;">
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">CUIT Oficial</label>
+                  <input type="text" id="cfgCompanyCuit" value="30-68942154-8" style="width:100%; padding:9px 12px; border:1px solid var(--border-subtle); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:var(--font-mono); font-weight:700;">
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Dirección Showroom Principal</label>
+                  <input type="text" id="cfgCompanyAddress" value="Av. San Martín 2840, Florencio Varela, Bs. As." style="width:100%; padding:9px 12px; border:1px solid var(--border-subtle); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">Teléfonos de Casa Central</label>
+                  <input type="text" id="cfgCompanyPhone" value="011 4275-1489 / 4275-0302 - 4255-3571" style="width:100%; padding:9px 12px; border:1px solid var(--border-subtle); border-radius:6px; background:var(--bg-main); color:var(--text-main);">
+                </div>
+                <div>
+                  <label style="display:block; font-size:0.75rem; font-weight:800; text-transform:uppercase; color:var(--text-muted); margin-bottom:4px;">WhatsApp Comercial Oficial</label>
+                  <input type="text" id="cfgCompanyWhatsapp" value="+54 9 11 6248-4394" style="width:100%; padding:9px 12px; border:1px solid var(--border-subtle); border-radius:6px; background:var(--bg-main); color:var(--text-main); font-family:var(--font-mono);">
+                </div>
+                <div style="display:flex; justify-content:flex-end; margin-top:8px;">
+                  <button type="submit" class="btn-action-quick btn-primary-red">Actualizar Datos Fiscales</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Parámetros de Financiación y Alícuotas -->
+            <div class="analytics-card">
+              <div class="analytics-header">
+                <div>
+                  <h3 class="analytics-title">Parámetros de Financiación & Fiscales</h3>
+                  <div class="analytics-subtitle">Tasas de interés, impuestos y reglas de venta</div>
+                </div>
+              </div>
+              <div style="display:flex; flex-direction:column; gap:16px;">
+                <div style="background:var(--bg-subtle); padding:14px; border-radius:8px;">
+                  <div style="font-size:0.84rem; font-weight:800; margin-bottom:2px;">Tasa Nominal Anual (TNA) Prendaria</div>
+                  <div style="font-family:var(--font-mono); font-size:1.1rem; font-weight:900; color:var(--brand-red);">38.0% Fija Anual</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">Cuotas fijas en pesos solo con DNI aprobadas en 24h</div>
+                </div>
+
+                <div style="background:var(--bg-subtle); padding:14px; border-radius:8px;">
+                  <div style="font-size:0.84rem; font-weight:800; margin-bottom:2px;">Alícuota IVA General</div>
+                  <div style="font-family:var(--font-mono); font-size:1.1rem; font-weight:900; color:var(--text-main);">21.0%</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">Facturación A/B electrónica vinculada con AFIP</div>
+                </div>
+
+                <div style="background:var(--bg-subtle); padding:14px; border-radius:8px;">
+                  <div style="font-size:0.84rem; font-weight:800; margin-bottom:2px;">Alícuota IIBB PBA (Concesionarias)</div>
+                  <div style="font-family:var(--font-mono); font-size:1.1rem; font-weight:900; color:var(--text-main);">3.5% sobre Comisión Bruta</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">Régimen especial de compra/venta de automotores</div>
+                </div>
+
+                <div style="background:var(--bg-subtle); padding:14px; border-radius:8px;">
+                  <div style="font-size:0.84rem; font-weight:800; margin-bottom:2px;">Comisión Mínima Asesor Comercial</div>
+                  <div style="font-family:var(--font-mono); font-size:1.1rem; font-weight:900; color:#166E30;">1.5% a 2.0%</div>
+                  <div style="font-size:0.75rem; color:var(--text-muted);">Escalonada según cumplimiento de objetivo mensual</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Registro de Auditoría Inmutable del Sistema -->
           <div class="analytics-card">
+            <div class="analytics-header">
+              <div>
+                <h3 class="analytics-title">Registro Inmutable de Auditoría del Sistema</h3>
+                <div class="analytics-subtitle">Trazabilidad de cada venta, modificación de stock, tasación y liquidación registrada</div>
+              </div>
+            </div>
             <div class="erp-table-responsive">
               <table class="erp-data-table">
                 <thead>
                   <tr>
-                    <th>Timestamp</th>
-                    <th>Usuario</th>
-                    <th>Acción Registrada</th>
-                    <th>Entidad Modificada</th>
-                    <th>IP / Terminal</th>
+                    <th>Timestamp / Fecha</th>
+                    <th>Usuario / Operador</th>
+                    <th>Módulo</th>
+                    <th>Acción Realizada</th>
+                    <th>Detalle de la Operación</th>
+                    <th>Terminal / IP</th>
                   </tr>
                 </thead>
-                <tbody>
-                  <tr>
-                    <td style="font-family:var(--font-mono); font-size:0.8rem;">17/09/2026 19:10</td>
-                    <td>Dirección Os-Car</td>
-                    <td>Actualización de precio de lista (-4% oferta)</td>
-                    <td>Peugeot 208 Feline (AF-321-XY)</td>
-                    <td style="font-family:var(--font-mono); font-size:0.75rem;">192.168.1.102</td>
-                  </tr>
-                </tbody>
+                <tbody id="auditLogsTableBody"></tbody>
               </table>
             </div>
           </div>

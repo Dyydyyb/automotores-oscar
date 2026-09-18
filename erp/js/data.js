@@ -1000,6 +1000,460 @@ const ERP_DATA = {
     { date: "2026-09-12", units: 1, volume: 38900000, model: "Ford Ranger", condition: "usado" },
     { date: "2026-09-14", units: 1, volume: 26800000, model: "Fiat Cronos", condition: "0km" },
     { date: "2026-09-17", units: 1, volume: 38500000, model: "Toyota SW4", condition: "usado" }
+  ],
+
+  // Desglose de Flujo de Fondos para Gráfico Interactivo de Finanzas
+  cashFlowData: {
+    months: ["May", "Jun", "Jul", "Ago", "Sep"],
+    ingresos: [162.2, 159.6, 173.0, 172.8, 184.5],
+    egresos: [135.0, 131.2, 142.5, 148.0, 150.8],
+    breakdown: [
+      { category: "Venta Flota 0KM", amount: 126.8, type: "ingreso", percentage: 68.7, color: "#166E30" },
+      { category: "Venta Usados", amount: 57.7, type: "ingreso", percentage: 31.3, color: "#1D4ED8" },
+      { category: "Tomas de Usados", amount: 112.4, type: "egreso", percentage: 74.5, color: "#A81E24" },
+      { category: "Mecánica & Detailing", amount: 14.8, type: "egreso", percentage: 9.8, color: "#D97706" },
+      { category: "Comisiones Asesores", amount: 8.6, type: "egreso", percentage: 5.7, color: "#64748B" },
+      { category: "Impuestos & Fijos", amount: 15.0, type: "egreso", percentage: 10.0, color: "#475569" }
+    ]
+  },
+
+  // Flujo Operativo de Taller & Preparación de Unidades (Checklist y Service)
+  workshopJobs: [
+    {
+      id: "TLR-2026-01",
+      vehicleId: "toyota-sw4-2012",
+      vehicleName: "Toyota SW4 4x4 7 Asientos",
+      patente: "MNP 429",
+      year: 2012,
+      stage: "detailing", // ingreso | mecanica | chapa_pintura | detailing | listo
+      stageLabel: "Detailing & Lustrado",
+      mechanic: "Marcos Medina",
+      priority: "alta",
+      entryDate: "2026-09-12",
+      estimatedDelivery: "2026-09-19",
+      costTotal: 620000,
+      tasks: [
+        { desc: "Cambio de fluidos y kit de distribución", status: "completado", cost: 380000 },
+        { desc: "Pulido ópticas delanteras y cerámico 3M", status: "en_proceso", cost: 240000 }
+      ]
+    },
+    {
+      id: "TLR-2026-02",
+      vehicleId: "ford-ranger-usado",
+      vehicleName: "Ford Ranger XLT 3.2 4x4",
+      patente: "AC 821 LM",
+      year: 2018,
+      stage: "mecanica",
+      stageLabel: "Mecánica Ligera",
+      mechanic: "Esteban Roldán",
+      priority: "media",
+      entryDate: "2026-09-14",
+      estimatedDelivery: "2026-09-20",
+      costTotal: 480000,
+      tasks: [
+        { desc: "Reemplazo de pastillas de freno y alineación", status: "completado", cost: 180000 },
+        { desc: "Service 60.000 km con bujías y filtros", status: "en_proceso", cost: 300000 }
+      ]
+    },
+    {
+      id: "TLR-2026-03",
+      vehicleId: "peugeot-208-feline",
+      vehicleName: "Peugeot 208 Feline Tiptronic",
+      patente: "0KM (Sin Rodar)",
+      year: 2026,
+      stage: "listo",
+      stageLabel: "Listo para Salón",
+      mechanic: "Marcos Medina",
+      priority: "normal",
+      entryDate: "2026-09-15",
+      estimatedDelivery: "2026-09-17",
+      costTotal: 210000,
+      tasks: [
+        { desc: "Control de entrega oficial 0KM y colocación de alfombras", status: "completado", cost: 90000 },
+        { desc: "Sellado acrílico de pintura para showroom", status: "completado", cost: 120000 }
+      ]
+    },
+    {
+      id: "TLR-2026-04",
+      vehicleId: "iveco-daily-chasis",
+      vehicleName: "Iveco Daily 70C17 Chasis",
+      patente: "0KM (Sin Rodar)",
+      year: 2026,
+      stage: "ingreso",
+      stageLabel: "Ingreso & Peritaje",
+      mechanic: "Esteban Roldán",
+      priority: "alta",
+      entryDate: "2026-09-17",
+      estimatedDelivery: "2026-09-22",
+      costTotal: 340000,
+      tasks: [
+        { desc: "Desparafinado y chequeo de batería", status: "pendiente", cost: 140000 },
+        { desc: "Instalación de tacógrafo homologado", status: "pendiente", cost: 200000 }
+      ]
+    }
+  ],
+
+  // Control Registral, Gestoría y Transferencias DNRPA
+  transfers: [
+    {
+      id: "TRF-2026-101",
+      vehicleName: "Toyota Hilux DX 2.4 4x4",
+      patente: "AF 392 PK",
+      condition: "usado",
+      titular: "Carlos Eduardo Gómez",
+      dni: "29.481.029",
+      buyer: "Transportes El Halcón S.A.",
+      buyerCuit: "30-71492011-4",
+      gestor: "Dra. Lorena Peralta",
+      registroSeccional: "DNRPA Seccional N° 2 F. Varela",
+      f08Status: "firmado", // firmado | pendiente | observado
+      f12Verificacion: "aprobado", // aprobado | pendiente
+      dominioDnrpa: "limpio", // limpio | con_prenda | observado
+      patentesStatus: "al_dia", // al_dia | con_deuda
+      infraccionesStatus: "al_dia",
+      cedulaStatus: "emitida", // emitida | en_tramite
+      stage: "finalizado", // ingresado | documentando | presentado | finalizado
+      daysInProcess: 5,
+      estimatedFinishDate: "2026-09-15"
+    },
+    {
+      id: "TRF-2026-102",
+      vehicleName: "Honda HR-V EX CVT",
+      patente: "0KM (Inscripción Inicial)",
+      condition: "0km",
+      titular: "Automotores Os-Car S.R.L.",
+      dni: "30-68942154-8",
+      buyer: "Dr. Marcelo Damián Russo",
+      buyerCuit: "20-33819402-9",
+      gestor: "Dra. Lorena Peralta",
+      registroSeccional: "DNRPA Seccional N° 1 F. Varela",
+      f08Status: "firmado",
+      f12Verificacion: "aprobado",
+      dominioDnrpa: "limpio",
+      patentesStatus: "al_dia",
+      infraccionesStatus: "al_dia",
+      cedulaStatus: "en_tramite",
+      stage: "presentado",
+      daysInProcess: 3,
+      estimatedFinishDate: "2026-09-21"
+    },
+    {
+      id: "TRF-2026-103",
+      vehicleName: "VW Gol Trend Comfortline",
+      patente: "AD 491 MN",
+      condition: "usado",
+      titular: "Mariana Soledad Díaz",
+      dni: "34.192.833",
+      buyer: "Gonzalo Javier Nieva",
+      buyerCuit: "20-38491022-3",
+      gestor: "Estudio Mandatarios Sur",
+      registroSeccional: "DNRPA Quilmes N° 4",
+      f08Status: "firmado",
+      f12Verificacion: "aprobado",
+      dominioDnrpa: "limpio",
+      patentesStatus: "con_deuda", // alerta patentes pendientes
+      infraccionesStatus: "al_dia",
+      cedulaStatus: "en_tramite",
+      stage: "documentando",
+      daysInProcess: 8,
+      estimatedFinishDate: "2026-09-24"
+    },
+    {
+      id: "TRF-2026-104",
+      vehicleName: "Renault Alaskan Comfort 4x4",
+      patente: "0KM (Inscripción Inicial)",
+      condition: "0km",
+      titular: "Automotores Os-Car S.R.L.",
+      dni: "30-68942154-8",
+      buyer: "Agropecuaria Los Manantiales",
+      buyerCuit: "30-64810294-7",
+      gestor: "Dra. Lorena Peralta",
+      registroSeccional: "DNRPA Seccional N° 3 F. Varela",
+      f08Status: "firmado",
+      f12Verificacion: "aprobado",
+      dominioDnrpa: "limpio",
+      patentesStatus: "al_dia",
+      infraccionesStatus: "al_dia",
+      cedulaStatus: "emitida",
+      stage: "finalizado",
+      daysInProcess: 4,
+      estimatedFinishDate: "2026-09-16"
+    }
+  ],
+
+  // Auditoría Multimedia & Canales de Publicación Web
+  webPublications: [
+    {
+      vehicleId: "honda-hrv-ex-cvt",
+      name: "Honda HR-V EX CVT",
+      patente: "0KM",
+      condition: "0km",
+      photosCount: 16,
+      photosTarget: 16,
+      has360: true,
+      hasVideo: true,
+      channels: { web: true, mercadolibre: true, facebook: true, instagram: true },
+      viewsCount: 684,
+      leadsCount: 18,
+      lastSync: "Hoy 11:20 hs",
+      status: "activo"
+    },
+    {
+      vehicleId: "fiat-cronos-drive-pack",
+      name: "Fiat Cronos Drive Pack Conect",
+      patente: "0KM",
+      condition: "0km",
+      photosCount: 14,
+      photosTarget: 16,
+      has360: true,
+      hasVideo: false,
+      channels: { web: true, mercadolibre: true, facebook: true, instagram: false },
+      viewsCount: 890,
+      leadsCount: 26,
+      lastSync: "Hoy 09:45 hs",
+      status: "activo"
+    },
+    {
+      vehicleId: "peugeot-208-feline",
+      name: "Peugeot 208 Feline Tiptronic",
+      patente: "0KM",
+      condition: "0km",
+      photosCount: 16,
+      photosTarget: 16,
+      has360: true,
+      hasVideo: true,
+      channels: { web: true, mercadolibre: true, facebook: true, instagram: true },
+      viewsCount: 540,
+      leadsCount: 15,
+      lastSync: "Ayer 18:30 hs",
+      status: "activo"
+    },
+    {
+      vehicleId: "toyota-sw4-2012",
+      name: "Toyota SW4 4x4 7 Asientos",
+      patente: "MNP 429",
+      condition: "usado",
+      photosCount: 12,
+      photosTarget: 16,
+      has360: false,
+      hasVideo: false,
+      channels: { web: true, mercadolibre: true, facebook: true, instagram: false },
+      viewsCount: 1120,
+      leadsCount: 31,
+      lastSync: "Hoy 10:15 hs",
+      status: "pausado" // En preparación de fotos
+    },
+    {
+      vehicleId: "renault-alaskan-comfort",
+      name: "Renault Alaskan Comfort 4x4",
+      patente: "0KM",
+      condition: "0km",
+      photosCount: 16,
+      photosTarget: 16,
+      has360: true,
+      hasVideo: true,
+      channels: { web: true, mercadolibre: true, facebook: true, instagram: true },
+      viewsCount: 430,
+      leadsCount: 12,
+      lastSync: "Hoy 08:30 hs",
+      status: "activo"
+    }
+  ],
+
+  // Agenda de Turnos & Entregas en Salón
+  appointments: [
+    {
+      id: "TUR-901",
+      type: "entrega", // entrega | test_drive | peritaje | firma
+      typeLabel: "Ceremonia Entrega Llave 0KM",
+      date: "2026-09-18",
+      time: "11:00 hs",
+      client: "Martín Alejandro Benítez",
+      phone: "+54 9 11 4912-3841",
+      vehicle: "Honda HR-V EX CVT 0KM",
+      seller: "Roberto Páez",
+      status: "confirmado",
+      notes: "Unidad con pulido cerámico listo, entrega en tarima de showroom con obsequio Os-Car."
+    },
+    {
+      id: "TUR-902",
+      type: "test_drive",
+      typeLabel: "Test Drive en Autopista",
+      date: "2026-09-18",
+      time: "15:30 hs",
+      client: "Gonzalo Javier Nieva",
+      phone: "+54 9 11 3849-1022",
+      vehicle: "Fiat Cronos Drive Pack 0KM",
+      seller: "Carlos Gómez",
+      status: "confirmado",
+      notes: "Interesado en línea prendaria 24 cuotas fijas con DNI. Copia de registro cargada."
+    },
+    {
+      id: "TUR-903",
+      type: "peritaje",
+      typeLabel: "Peritaje Técnico de Permuta",
+      date: "2026-09-19",
+      time: "10:00 hs",
+      client: "Dr. Marcelo Damián Russo",
+      phone: "+54 9 11 5820-9411",
+      vehicle: "Ford Focus SE Plus 2017 (Toma Usado)",
+      seller: "Lucía Varela",
+      status: "confirmado",
+      notes: "Chequeo de pintura con micrómetro y verificación de compresión de motor."
+    },
+    {
+      id: "TUR-904",
+      type: "firma",
+      typeLabel: "Firma de Boleto & Certificación 08",
+      date: "2026-09-19",
+      time: "12:30 hs",
+      client: "Transportes El Halcón S.A.",
+      phone: "+54 9 11 4287-1902",
+      vehicle: "Iveco Daily 70C17 Chasis",
+      seller: "Roberto Páez",
+      status: "pendiente",
+      notes: "Presenta apoderado de la firma con poder notarial y constancia CUIT."
+    }
+  ],
+
+  // Personal, RRHH & Equipo de Salón Os-Car
+  employees: [
+    {
+      id: "EMP-01",
+      name: "Roberto Páez",
+      role: "Asesor Comercial Senior",
+      department: "Ventas",
+      phone: "+54 9 11 5491-3829",
+      email: "rpaez@automotoresoscar.com.ar",
+      shift: "Lunes a Sábado 09:00 a 18:30",
+      rating: 4.9,
+      closedUnits: 4,
+      totalVolume: 89400000,
+      status: "activo"
+    },
+    {
+      id: "EMP-02",
+      name: "Carlos Gómez",
+      role: "Asesor Comercial Flota & Utilitarios",
+      department: "Ventas",
+      phone: "+54 9 11 6392-1049",
+      email: "cgomez@automotoresoscar.com.ar",
+      shift: "Lunes a Sábado 09:00 a 18:30",
+      rating: 4.8,
+      closedUnits: 3,
+      totalVolume: 68100000,
+      status: "activo"
+    },
+    {
+      id: "EMP-03",
+      name: "Lucía Varela",
+      role: "Ejecutiva de Créditos & Seguros",
+      department: "Finanzas & CRM",
+      phone: "+54 9 11 4920-5810",
+      email: "lvarela@automotoresoscar.com.ar",
+      shift: "Lunes a Viernes 08:30 a 17:30",
+      rating: 5.0,
+      closedUnits: 2,
+      totalVolume: 27000000,
+      status: "activo"
+    },
+    {
+      id: "EMP-04",
+      name: "Marcos Medina",
+      role: "Jefe Técnico de Taller & Peritajes",
+      department: "Taller & Preparación",
+      phone: "+54 9 11 5912-3849",
+      email: "taller@automotoresoscar.com.ar",
+      shift: "Lunes a Viernes 08:00 a 17:00",
+      rating: 4.9,
+      closedUnits: 8,
+      totalVolume: 0,
+      status: "activo"
+    },
+    {
+      id: "EMP-05",
+      name: "Dra. Lorena Peralta",
+      role: "Mandataria Nacional DNRPA",
+      department: "Gestoría Registral",
+      phone: "+54 9 11 4829-1029",
+      email: "gestoria@automotoresoscar.com.ar",
+      shift: "Lunes a Viernes 08:30 a 14:30",
+      rating: 4.9,
+      closedUnits: 12,
+      totalVolume: 0,
+      status: "activo"
+    },
+    {
+      id: "EMP-06",
+      name: "Esteban Roldán",
+      role: "Mecánico Especialista & Detailing",
+      department: "Taller & Preparación",
+      phone: "+54 9 11 6849-2011",
+      email: "mecanica@automotoresoscar.com.ar",
+      shift: "Lunes a Viernes 08:00 a 17:00",
+      rating: 4.7,
+      closedUnits: 6,
+      totalVolume: 0,
+      status: "activo"
+    }
+  ],
+
+  // Registro de Auditoría Inmutable del Sistema
+  auditLogs: [
+    {
+      id: "AUD-849",
+      timestamp: "2026-09-17 18:42:15",
+      user: "Dirección General (OC)",
+      module: "Finanzas",
+      action: "Liquidación de Comisiones",
+      detail: "Liquidada comisión COM-2026-001 a Roberto Páez por $1.480.000 vía transferencia",
+      ip: "192.168.1.10"
+    },
+    {
+      id: "AUD-848",
+      timestamp: "2026-09-17 16:15:30",
+      user: "Carlos Gómez",
+      module: "Ventas",
+      action: "Nueva Operación Cerrada",
+      detail: "Registrada venta VNT-2026-008 (Peugeot 2008 Allure) por $28.900.000",
+      ip: "192.168.1.14"
+    },
+    {
+      id: "AUD-847",
+      timestamp: "2026-09-17 14:20:00",
+      user: "Dirección General (OC)",
+      module: "Stock",
+      action: "Ajuste de Precio de Lista",
+      detail: "Honda HR-V EX CVT: $37.500.000 -> $38.200.000 por actualización terminal",
+      ip: "192.168.1.10"
+    },
+    {
+      id: "AUD-846",
+      timestamp: "2026-09-17 11:05:44",
+      user: "Lucía Varela",
+      module: "CRM",
+      action: "Cambio de Estado de Lead",
+      detail: "Lead LD-002 (Carlos Martínez) movido de 'Contactado' a 'Test Drive Pactado'",
+      ip: "192.168.1.15"
+    },
+    {
+      id: "AUD-845",
+      timestamp: "2026-09-16 17:30:12",
+      user: "Dra. Lorena Peralta",
+      module: "Documentación",
+      action: "Cierre de Transferencia DNRPA",
+      detail: "Trámite TRF-2026-101 (Toyota Hilux AF 392 PK) marcado como 'Finalizado'",
+      ip: "192.168.1.18"
+    },
+    {
+      id: "AUD-844",
+      timestamp: "2026-09-16 10:12:00",
+      user: "Sistema Automático",
+      module: "Web Sync",
+      action: "Sincronización Catálogo Web",
+      detail: "10 unidades activas sincronizadas con automotoresoscar.com.ar",
+      ip: "127.0.0.1"
+    }
   ]
 };
 

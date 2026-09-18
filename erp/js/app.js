@@ -16,6 +16,12 @@ class ERPApp {
     this.tradeIns = [...window.ERP_DATA.tradeIns];
     this.financeMovements = [...window.ERP_DATA.financeMovements];
     this.sellerCommissions = [...window.ERP_DATA.sellerCommissions];
+    this.workshopJobs = [...(window.ERP_DATA.workshopJobs || [])];
+    this.transfers = [...(window.ERP_DATA.transfers || [])];
+    this.webPublications = [...(window.ERP_DATA.webPublications || [])];
+    this.appointments = [...(window.ERP_DATA.appointments || [])];
+    this.employees = [...(window.ERP_DATA.employees || [])];
+    this.auditLogs = [...(window.ERP_DATA.auditLogs || [])];
 
     this.activeStockTab = 'todos'; // 'todos' | 'disponible' | 'reservado' | 'en_preparacion' | 'vendidos'
     this.stockFilter = {
@@ -36,6 +42,7 @@ class ERPApp {
     if (window.erpCharts) {
       window.erpCharts.salesType = 'dona';
       window.erpCharts.stockChartType = 'dona';
+      window.erpCharts.cashFlowType = 'barra';
     }
   }
 
@@ -49,6 +56,15 @@ class ERPApp {
     this.initSalesModule();
     this.initFinanceModule();
     this.initCommissionsModule();
+    this.initCrmModule();
+    this.initTradeInsModule();
+    this.initWorkshopModule();
+    this.initDocumentationModule();
+    this.initWebPublicationModule();
+    this.initAppointmentsModule();
+    this.initReportsModule();
+    this.initStaffModule();
+    this.initAuditModule();
     this.initSyncEngine();
     this.initDrawer();
 
@@ -132,6 +148,24 @@ class ERPApp {
       this.renderFinanceLedger();
     } else if (viewId === 'comisiones') {
       this.renderCommissionsModule();
+    } else if (viewId === 'crm') {
+      this.renderCrmModule();
+    } else if (viewId === 'permutas') {
+      this.renderTradeInsModule();
+    } else if (viewId === 'taller') {
+      this.renderWorkshopModule();
+    } else if (viewId === 'documentacion') {
+      this.renderDocumentationModule();
+    } else if (viewId === 'publicacion') {
+      this.renderWebPublicationModule();
+    } else if (viewId === 'agenda') {
+      this.renderAppointmentsModule();
+    } else if (viewId === 'reportes') {
+      this.renderReportsModule();
+    } else if (viewId === 'personal') {
+      this.renderStaffModule();
+    } else if (viewId === 'configuracion') {
+      this.renderAuditModule();
     }
 
     const sidebar = document.getElementById('erpSidebar');
@@ -638,8 +672,19 @@ class ERPApp {
         v.patente.toLowerCase().includes(this.stockFilter.search) ||
         v.vin.toLowerCase().includes(this.stockFilter.search);
 
-      const matchCat = (this.stockFilter.category === 'todos') || (v.category === this.stockFilter.category);
-      const matchCond = (this.stockFilter.condition === 'todos') || (v.condition === this.stockFilter.condition);
+      let matchCat = this.stockFilter.category === 'todos';
+      if (!matchCat) {
+        const selCat = this.stockFilter.category.toLowerCase();
+        const vCat = (v.category || '').toLowerCase();
+        matchCat = vCat === selCat || vCat.startsWith(selCat) || selCat.startsWith(vCat);
+      }
+
+      let matchCond = this.stockFilter.condition === 'todos';
+      if (!matchCond) {
+        const selCond = this.stockFilter.condition.toLowerCase();
+        const vCond = (v.condition || '').toLowerCase();
+        matchCond = vCond === selCond || vCond.startsWith(selCond) || selCond.startsWith(vCond);
+      }
       
       let matchTab = true;
       if (this.activeStockTab === 'disponible') matchTab = v.status === 'disponible';
@@ -1069,6 +1114,19 @@ class ERPApp {
         this.renderFinanceLedger(btn.dataset.filter);
       });
     });
+
+    // Selector de Tipo de Gráfico de Flujo Financiero (Barra, Línea, Contorno, Dona, Torta)
+    const cashFlowButtons = document.querySelectorAll('.chart-cashflow-type-btn');
+    cashFlowButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        cashFlowButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        if (window.erpCharts) {
+          window.erpCharts.cashFlowType = btn.dataset.cashflowType;
+          window.erpCharts.renderCashFlowChart('cashFlowChartContainer', window.ERP_DATA);
+        }
+      });
+    });
   }
 
   renderFinanceLedger(filterType = 'todos') {
@@ -1305,6 +1363,677 @@ class ERPApp {
     }
 
     this.openModal('modalReceiptPreview');
+  }
+
+  // =========================================================================
+  // MÓDULO 6: CRM & Gestión de Leads Entrantes
+  // =========================================================================
+  initCrmModule() {
+    const searchInput = document.getElementById('crmSearchInput');
+    const channelSelect = document.getElementById('crmFilterChannel');
+    const stageSelect = document.getElementById('crmFilterStage');
+
+    const filterLeads = () => {
+      this.renderCrmModule();
+    };
+
+    searchInput?.addEventListener('input', filterLeads);
+    channelSelect?.addEventListener('change', filterLeads);
+    stageSelect?.addEventListener('change', filterLeads);
+
+    const formLead = document.getElementById('formNewLead');
+    formLead?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('newLeadName')?.value || 'Nuevo Prospecto';
+      const phone = document.getElementById('newLeadPhone')?.value || '11-0000-0000';
+      const vehicle = document.getElementById('newLeadVehicle')?.value || 'Consulta General';
+      const channel = document.getElementById('newLeadChannel')?.value || 'Visita Salón';
+      const seller = document.getElementById('newLeadSeller')?.value || 'Carlos Benítez';
+
+      const newLead = {
+        id: `LEAD-${Date.now().toString().slice(-4)}`,
+        name,
+        phone,
+        channel,
+        vehicleInterest: vehicle,
+        assignedSeller: seller,
+        date: new Date().toISOString().split('T')[0],
+        stage: 'nuevo',
+        notes: 'Ingreso directo manual desde salón'
+      };
+
+      this.leads.unshift(newLead);
+      this.closeModal('modalNewLead');
+      this.renderCrmModule();
+      this.showToast(`Lead de ${name} registrado y asignado a ${seller}`);
+    });
+  }
+
+  renderCrmModule() {
+    const tableBody = document.getElementById('crmTableBody');
+    if (!tableBody) return;
+
+    const query = (document.getElementById('crmSearchInput')?.value || '').trim().toLowerCase();
+    const selChannel = document.getElementById('crmFilterChannel')?.value || 'todos';
+    const selStage = document.getElementById('crmFilterStage')?.value || 'todos';
+
+    const filtered = this.leads.filter(l => {
+      const matchQuery = !query ||
+        l.name.toLowerCase().includes(query) ||
+        (l.phone && l.phone.toLowerCase().includes(query)) ||
+        (l.vehicleInterest && l.vehicleInterest.toLowerCase().includes(query)) ||
+        (l.assignedSeller && l.assignedSeller.toLowerCase().includes(query));
+
+      const matchChannel = (selChannel === 'todos') || (l.channel === selChannel);
+      const matchStage = (selStage === 'todos') || (l.stage === selStage);
+
+      return matchQuery && matchChannel && matchStage;
+    });
+
+    const kpiTotal = document.getElementById('crmKpiTotal');
+    const kpiActive = document.getElementById('crmKpiActive');
+    const kpiTestDrives = document.getElementById('crmKpiTestDrives');
+    const kpiConversion = document.getElementById('crmKpiConversion');
+
+    if (kpiTotal) kpiTotal.textContent = `${this.leads.length} leads`;
+    if (kpiActive) kpiActive.textContent = `${this.leads.filter(l => l.stage !== 'cerrado' && l.stage !== 'perdido').length} prospectos`;
+    if (kpiTestDrives) kpiTestDrives.textContent = `${this.leads.filter(l => l.stage === 'test_drive' || l.stage === 'visita_agendada').length} turnos`;
+    if (kpiConversion) {
+      const closed = this.leads.filter(l => l.stage === 'cerrado').length;
+      const rate = this.leads.length > 0 ? ((closed / this.leads.length) * 100).toFixed(1) : '17.6';
+      kpiConversion.textContent = `${rate}%`;
+    }
+
+    const stageMap = {
+      'nuevo': { label: 'Nuevo Lead', class: 'badge-0km' },
+      'contactado': { label: 'Contactado', class: 'badge-web-sync' },
+      'test_drive': { label: 'Test Drive', class: 'badge-status-reservado' },
+      'visita_agendada': { label: 'Visita Agendada', class: 'badge-status-reservado' },
+      'negociacion': { label: 'En Negociación', class: 'badge-usado' },
+      'cerrado': { label: 'Venta Cerrada', class: 'badge-status-disponible' },
+      'perdido': { label: 'Desestimado', class: 'badge-status-vendido' }
+    };
+
+    let html = '';
+    filtered.forEach(l => {
+      const stageInfo = stageMap[l.stage] || { label: l.stage, class: 'badge-web-sync' };
+      const rawPhone = (l.phone || '').replace(/[^0-9]/g, '');
+      const waLink = `https://wa.me/549${rawPhone}?text=${encodeURIComponent(`Hola ${l.name}, te escribimos de Automotores Os-Car (Florencio Varela) sobre tu consulta por ${l.vehicleInterest}. ¿Cómo podemos asesorarte hoy?`)}`;
+
+      html += `
+        <tr>
+          <td>
+            <div style="font-weight:800; color:var(--text-main); font-size:0.88rem;">${l.name}</div>
+            <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+              <a href="${waLink}" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:4px; font-family:var(--font-mono); font-size:0.75rem; color:#166E30; text-decoration:none; font-weight:700;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                ${l.phone}
+              </a>
+            </div>
+          </td>
+          <td><span class="erp-badge badge-web-sync">${l.channel}</span></td>
+          <td>
+            <div style="font-weight:700; color:var(--text-main); font-size:0.85rem;">${l.vehicleInterest}</div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">${l.notes || 'Consulta comercial'}</div>
+          </td>
+          <td><span style="font-weight:700; font-size:0.82rem;">${l.assignedSeller}</span></td>
+          <td><span style="font-family:var(--font-mono); font-size:0.78rem;">${l.date}</span></td>
+          <td><span class="erp-badge ${stageInfo.class}">${stageInfo.label}</span></td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn-action-quick" style="padding:4px 8px;" onclick="window.erpApp.advanceLeadStage('${l.id}')">
+                Avanzar
+              </button>
+              <a href="${waLink}" target="_blank" rel="noopener" class="btn-action-quick" style="padding:4px 8px; text-decoration:none; display:inline-flex; align-items:center;">
+                WA
+              </a>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+
+    if (!html) {
+      html = `<tr><td colspan="7" style="text-align:center; padding:32px; color:var(--text-muted);">No se encontraron leads coincidentes con los filtros.</td></tr>`;
+    }
+
+    tableBody.innerHTML = html;
+  }
+
+  advanceLeadStage(leadId) {
+    const lead = this.leads.find(l => l.id === leadId);
+    if (!lead) return;
+
+    const stages = ['nuevo', 'contactado', 'test_drive', 'negociacion', 'cerrado'];
+    const currIdx = stages.indexOf(lead.stage);
+    if (currIdx < stages.length - 1) {
+      lead.stage = stages[currIdx + 1];
+      this.renderCrmModule();
+      this.showToast(`Lead ${lead.name} avanzó a etapa: ${lead.stage.toUpperCase()}`);
+    } else {
+      this.showToast(`El lead ${lead.name} ya está en etapa final: CERRADO`);
+    }
+  }
+
+  // =========================================================================
+  // MÓDULO 7: Toma de Usados & Permutas en Parte de Pago
+  // =========================================================================
+  initTradeInsModule() {}
+
+  renderTradeInsModule() {
+    const tableBody = document.getElementById('tradeInsTableBody');
+    if (!tableBody) return;
+
+    let html = '';
+    this.tradeIns.forEach(t => {
+      const spread = t.projectedResale - t.offeredPrice - t.reconditioningCost;
+      const spreadPerc = ((spread / t.offeredPrice) * 100).toFixed(1);
+      const isApproved = t.status === 'tasacion_aprobada';
+      const rawPhone = (t.clientPhone || '').replace(/[^0-9]/g, '');
+
+      html += `
+        <tr>
+          <td>
+            <div class="vehicle-cell-title">
+              <img src="${t.image}" alt="${t.name}" class="vehicle-table-thumb">
+              <div>
+                <div class="vehicle-name-strong">${t.name}</div>
+                <div class="vehicle-subinfo-cell">Año ${t.year} · ${Number(t.km).toLocaleString('es-AR')} km · Patente <strong>${t.patente}</strong></div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div style="font-weight:700;">${t.clientName}</div>
+            <a href="https://wa.me/549${rawPhone}" target="_blank" rel="noopener" style="font-size:0.75rem; color:#166E30; font-family:var(--font-mono); text-decoration:none; font-weight:700;">
+              ${t.clientPhone}
+            </a>
+          </td>
+          <td>
+            <div style="font-size:0.76rem; color:var(--text-muted);">Pretendido: <del>${this.formatCurrency(t.pretendedValue)}</del></div>
+            <div style="font-family:var(--font-mono); font-weight:900; color:var(--brand-red); font-size:0.92rem;">Tasado: ${this.formatCurrency(t.offeredPrice)}</div>
+          </td>
+          <td>
+            <div style="font-family:var(--font-mono); font-weight:900; color:var(--status-success-text); font-size:0.92rem;">+${this.formatCurrency(spread)}</div>
+            <div style="font-size:0.72rem; color:var(--status-success-text); font-weight:700;">Margen: ${spreadPerc}%</div>
+          </td>
+          <td>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span class="doc-check-pill doc-check-ok">${t.inspectionScore}/100</span>
+              <span style="font-size:0.74rem; color:var(--text-muted);">${t.checklistSummary || 'Peritaje aprobado'}</span>
+            </div>
+          </td>
+          <td>
+            <span class="erp-badge ${t.dnrpaStatus === 'aprobado' ? 'badge-status-disponible' : 'badge-status-reservado'}">
+              ${t.dnrpaStatus === 'aprobado' ? 'Libre Deuda DNRPA' : 'En Verificación'}
+            </span>
+          </td>
+          <td>
+            <span class="erp-badge ${isApproved ? 'badge-status-disponible' : 'badge-status-preparacion'}">
+              ${isApproved ? 'Tasación Aprobada' : 'En Peritaje'}
+            </span>
+          </td>
+          <td>
+            <button type="button" class="btn-action-quick ${isApproved ? '' : 'btn-primary-red'}" style="padding:5px 9px;" onclick="window.erpApp.advanceTradeInStage('${t.id}')">
+              ${isApproved ? 'Ver Peritaje' : 'Aprobar Toma'}
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+
+    tableBody.innerHTML = html;
+  }
+
+  advanceTradeInStage(tradeInId) {
+    const t = this.tradeIns.find(item => item.id === tradeInId);
+    if (!t) return;
+
+    if (t.status !== 'tasacion_aprobada') {
+      t.status = 'tasacion_aprobada';
+      this.renderTradeInsModule();
+      this.showToast(`Tasación de ${t.name} aprobada para permuta por ${this.formatCurrency(t.offeredPrice)}`);
+    } else {
+      this.showToast(`La unidad ${t.name} ya cuenta con tasación peritada aprobada`);
+    }
+  }
+
+  // =========================================================================
+  // MÓDULO 8: Taller & Preparación de Ingreso
+  // =========================================================================
+  initWorkshopModule() {}
+
+  renderWorkshopModule() {
+    const kanban = document.getElementById('workshopKanbanContainer');
+    const tableBody = document.getElementById('workshopTableBody');
+
+    const stages = [
+      { key: 'ingreso', title: '1. Ingreso & Peritaje' },
+      { key: 'mecanica', title: '2. Mecánica Ligera' },
+      { key: 'chapa_pintura', title: '3. Chapa & Pintura' },
+      { key: 'detailing', title: '4. Detailing & Estética' },
+      { key: 'listo', title: '5. Listo para Salón' }
+    ];
+
+    if (kanban) {
+      let kanbanHtml = '';
+      stages.forEach(stage => {
+        const jobs = this.workshopJobs.filter(j => j.stage === stage.key);
+        kanbanHtml += `
+          <div class="workshop-column">
+            <div class="workshop-column-header">
+              <span>${stage.title}</span>
+              <span class="erp-badge badge-web-sync">${jobs.length}</span>
+            </div>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+              ${jobs.map(j => `
+                <div class="workshop-card">
+                  <div class="workshop-card-title">${j.vehicleName}</div>
+                  <div class="workshop-card-meta">Patente: <strong>${j.patente}</strong> · ${j.orderId}</div>
+                  <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem;">
+                    <span style="color:var(--text-muted);">${j.technician}</span>
+                    <span style="font-family:var(--font-mono); font-weight:800; color:var(--brand-red);">${this.formatCurrency(j.cost)}</span>
+                  </div>
+                  <div style="font-size:0.72rem; color:var(--text-muted); background:var(--bg-subtle); padding:4px 6px; border-radius:4px;">
+                    ${j.checklistSummary || 'Checklist de taller en orden'}
+                  </div>
+                  <button type="button" class="btn-action-quick" style="width:100%; justify-content:center; padding:5px; margin-top:4px;" onclick="window.erpApp.advanceWorkshopStage('${j.id}')">
+                    ${stage.key === 'listo' ? 'Unidad en Salón' : 'Avanzar Fase'}
+                  </button>
+                </div>
+              `).join('') || '<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:16px 0;">Sin órdenes en esta etapa</div>'}
+            </div>
+          </div>
+        `;
+      });
+      kanban.innerHTML = kanbanHtml;
+    }
+
+    if (tableBody) {
+      let html = '';
+      this.workshopJobs.forEach(j => {
+        html += `
+          <tr>
+            <td>
+              <div style="font-family:var(--font-mono); font-weight:800; font-size:0.82rem; color:var(--brand-red);">${j.orderId}</div>
+              <div style="font-weight:700; font-size:0.88rem;">${j.vehicleName}</div>
+              <div style="font-size:0.74rem; color:var(--text-muted); font-family:var(--font-mono);">Patente: ${j.patente}</div>
+            </td>
+            <td><span class="erp-badge badge-status-reservado">${j.stageLabel || j.stage.toUpperCase()}</span></td>
+            <td><strong>${j.technician}</strong></td>
+            <td><span class="erp-badge ${j.priority === 'alta' ? 'badge-0km' : 'badge-web-sync'}">${j.priority.toUpperCase()}</span></td>
+            <td>
+              <div style="font-size:0.8rem; font-weight:600;">${j.checklistSummary || 'Service de fluidos y tren rodante'}</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">Proveedor: ${j.supplier || 'Taller Central Os-Car'}</div>
+            </td>
+            <td style="font-family:var(--font-mono); font-weight:900; color:var(--text-main);">${this.formatCurrency(j.cost)}</td>
+            <td><span style="font-family:var(--font-mono); font-size:0.8rem;">${j.estimatedDelivery}</span></td>
+            <td>
+              <button type="button" class="btn-action-quick btn-primary-red" style="padding:5px 9px;" onclick="window.erpApp.advanceWorkshopStage('${j.id}')">
+                Avanzar Fase
+              </button>
+            </td>
+          </tr>
+        `;
+      });
+      tableBody.innerHTML = html;
+    }
+  }
+
+  advanceWorkshopStage(jobId) {
+    const job = this.workshopJobs.find(j => j.id === jobId);
+    if (!job) return;
+
+    const stages = ['ingreso', 'mecanica', 'chapa_pintura', 'detailing', 'listo'];
+    const idx = stages.indexOf(job.stage);
+    if (idx < stages.length - 1) {
+      job.stage = stages[idx + 1];
+      const stageTitles = {
+        'mecanica': 'Mecánica Ligera',
+        'chapa_pintura': 'Chapa & Pintura',
+        'detailing': 'Detailing & Lustrado',
+        'listo': 'Listo para Showroom'
+      };
+      job.stageLabel = stageTitles[job.stage] || job.stage;
+      this.renderWorkshopModule();
+      this.showToast(`Orden ${job.orderId} de ${job.vehicleName} avanzada a ${job.stageLabel}`);
+    } else {
+      this.showToast(`La unidad ${job.vehicleName} ya completó todo el protocolo de taller y está en salón.`);
+    }
+  }
+
+  // =========================================================================
+  // MÓDULO 9: Gestoría, Documentación & Transferencias DNRPA
+  // =========================================================================
+  initDocumentationModule() {}
+
+  renderDocumentationModule() {
+    const tableBody = document.getElementById('documentationTableBody');
+    if (!tableBody) return;
+
+    let html = '';
+    this.transfers.forEach(t => {
+      const pill = (active, key) => `
+        <span class="doc-check-pill ${active ? 'doc-check-ok' : 'doc-check-alert'}" style="cursor:pointer;" onclick="window.erpApp.toggleTransferDoc('${t.id}', '${key}')" title="Click para alternar estado">
+          ${active ? 'OK' : 'PENDIENTE'}
+        </span>
+      `;
+
+      html += `
+        <tr>
+          <td>
+            <div style="font-family:var(--font-mono); font-weight:800; font-size:0.84rem; color:var(--brand-red);">${t.id}</div>
+            <div style="font-weight:700;">${t.vehicleName}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">Patente: ${t.patente}</div>
+          </td>
+          <td>
+            <div style="font-weight:700;">${t.buyerName}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">DNI: ${t.buyerDni}</div>
+          </td>
+          <td>${pill(t.form08, 'form08')}</td>
+          <td>${pill(t.verifF12, 'verifF12')}</td>
+          <td>${pill(t.dominioDnrpa, 'dominioDnrpa')}</td>
+          <td>${pill(t.libreDeudas, 'libreDeudas')}</td>
+          <td>${pill(t.cedulaDigital, 'cedulaDigital')}</td>
+          <td><strong>${t.gestor}</strong></td>
+          <td>
+            <span class="erp-badge ${t.status === 'finalizado' ? 'badge-status-disponible' : 'badge-status-reservado'}">
+              ${t.status === 'finalizado' ? 'Listo Retiro' : 'En Trámite DNRPA'}
+            </span>
+          </td>
+          <td>
+            <button type="button" class="btn-action-quick" style="padding:5px 9px;" onclick="window.erpApp.printTransferDocket('${t.id}')">
+              Legajo
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+
+    tableBody.innerHTML = html;
+  }
+
+  toggleTransferDoc(transferId, docKey) {
+    const t = this.transfers.find(item => item.id === transferId);
+    if (!t) return;
+    t[docKey] = !t[docKey];
+    this.renderDocumentationModule();
+    this.showToast(`Documento ${docKey.toUpperCase()} actualizado para ${t.vehicleName}`);
+  }
+
+  printTransferDocket(transferId) {
+    const t = this.transfers.find(item => item.id === transferId);
+    if (!t) return;
+    this.showToast(`Legajo registral DNRPA ${t.id} de ${t.vehicleName} preparado para entrega al gestor`);
+  }
+
+  // =========================================================================
+  // MÓDULO 10: Fotos & Publicación Web Multicanal
+  // =========================================================================
+  initWebPublicationModule() {}
+
+  renderWebPublicationModule() {
+    const tableBody = document.getElementById('webPublicationTableBody');
+    if (!tableBody) return;
+
+    let html = '';
+    this.webPublications.forEach(p => {
+      html += `
+        <tr>
+          <td>
+            <div class="vehicle-cell-title">
+              <img src="${p.image}" alt="${p.vehicleName}" class="vehicle-table-thumb">
+              <div>
+                <div class="vehicle-name-strong">${p.vehicleName}</div>
+                <div class="vehicle-subinfo-cell">Patente: <strong>${p.patente}</strong> · ${p.id}</div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <span class="doc-check-pill doc-check-ok">${p.photoCount}/16 HD (100%)</span>
+          </td>
+          <td>
+            <div style="display:flex; gap:4px;">
+              ${p.has360 ? '<span class="erp-badge badge-0km">360° Activo</span>' : '<span class="erp-badge" style="background:#E2E8F0; color:#64748B;">Sin 360</span>'}
+              ${p.hasVideo ? '<span class="erp-badge badge-status-disponible">Video HD</span>' : ''}
+            </div>
+          </td>
+          <td>
+            <div style="display:flex; gap:4px;">
+              <span class="erp-badge badge-web-sync">Web Oficial</span>
+              <span class="erp-badge badge-web-sync">MercadoLibre</span>
+            </div>
+          </td>
+          <td>
+            <div style="font-family:var(--font-mono); font-weight:800; font-size:0.86rem;">${Number(p.views).toLocaleString('es-AR')} visitas</div>
+            <div style="font-size:0.74rem; color:var(--brand-red); font-weight:800;">${p.leads} consultas directas</div>
+          </td>
+          <td><span style="font-family:var(--font-mono); font-size:0.78rem;">${p.lastSync}</span></td>
+          <td>
+            <span class="erp-badge ${p.online ? 'badge-status-disponible' : 'badge-status-vendido'}">
+              ${p.online ? 'ONLINE' : 'PAUSADO'}
+            </span>
+          </td>
+          <td>
+            <button type="button" class="btn-action-quick ${p.online ? '' : 'btn-primary-red'}" style="padding:5px 9px;" onclick="window.erpApp.toggleWebPublication('${p.id}')">
+              ${p.online ? 'Pausar' : 'Activar Web'}
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+
+    tableBody.innerHTML = html;
+  }
+
+  toggleWebPublication(pubId) {
+    const p = this.webPublications.find(item => item.id === pubId);
+    if (!p) return;
+    p.online = !p.online;
+    this.renderWebPublicationModule();
+    this.showToast(`Publicación de ${p.vehicleName} ahora está ${p.online ? 'ONLINE en la web pública' : 'PAUSADA'}`);
+  }
+
+  // =========================================================================
+  // MÓDULO 11: Agenda de Turnos & Entregas en Showroom
+  // =========================================================================
+  initAppointmentsModule() {}
+
+  renderAppointmentsModule() {
+    const tableBody = document.getElementById('appointmentsTableBody');
+    if (!tableBody) return;
+
+    let html = '';
+    this.appointments.forEach(a => {
+      const isConfirmed = a.status === 'confirmado';
+      html += `
+        <tr>
+          <td>
+            <div style="font-weight:800; color:var(--text-main); font-size:0.88rem;">${a.date}</div>
+            <div style="font-family:var(--font-mono); font-weight:900; color:var(--brand-red); font-size:0.92rem;">${a.hour} hs</div>
+          </td>
+          <td><span class="erp-badge ${a.type === 'entrega_0km' ? 'badge-0km' : 'badge-usado'}">${a.typeLabel || a.type.toUpperCase()}</span></td>
+          <td>
+            <div style="font-weight:700;">${a.clientName}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">${a.clientPhone}</div>
+          </td>
+          <td><strong>${a.vehicleName}</strong></td>
+          <td>${a.advisor}</td>
+          <td><div style="font-size:0.78rem; color:var(--text-muted); max-width:220px;">${a.notes}</div></td>
+          <td>
+            <span class="erp-badge ${isConfirmed ? 'badge-status-disponible' : 'badge-status-reservado'}">
+              ${isConfirmed ? 'Confirmado' : 'Pendiente'}
+            </span>
+          </td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button type="button" class="btn-action-quick" style="padding:4px 8px;" onclick="window.erpApp.sendAppointmentWaReminder('${a.id}')">
+                WA
+              </button>
+              <button type="button" class="btn-action-quick ${isConfirmed ? '' : 'btn-primary-red'}" style="padding:4px 8px;" onclick="window.erpApp.confirmAppointment('${a.id}')">
+                ${isConfirmed ? 'OK' : 'Confirmar'}
+              </button>
+            </div>
+          </td>
+        </tr>
+      `;
+    });
+
+    tableBody.innerHTML = html;
+  }
+
+  sendAppointmentWaReminder(appId) {
+    const a = this.appointments.find(item => item.id === appId);
+    if (!a) return;
+    const rawPhone = (a.clientPhone || '').replace(/[^0-9]/g, '');
+    const msg = `Hola ${a.clientName}, te recordamos tu turno en Automotores Os-Car para el día ${a.date} a las ${a.hour} hs (${a.typeLabel || a.type}) por la unidad ${a.vehicleName}. Te esperamos en Av. San Martín 2840, Florencio Varela.`;
+    window.open(`https://wa.me/549${rawPhone}?text=${encodeURIComponent(msg)}`, '_blank');
+    this.showToast(`Recordatorio de WhatsApp abierto para ${a.clientName}`);
+  }
+
+  confirmAppointment(appId) {
+    const a = this.appointments.find(item => item.id === appId);
+    if (!a) return;
+    a.status = 'confirmado';
+    this.renderAppointmentsModule();
+    this.showToast(`Turno de ${a.clientName} confirmado exitosamente`);
+  }
+
+  // =========================================================================
+  // MÓDULO 12: Reportes Ejecutivos & Rentabilidad (BI)
+  // =========================================================================
+  initReportsModule() {}
+
+  renderReportsModule() {
+    const tableBody = document.getElementById('reportsProfitabilityTableBody');
+    if (!tableBody) return;
+
+    let html = '';
+    this.soldVehicles.forEach(v => {
+      html += `
+        <tr>
+          <td>
+            <div style="font-weight:800; color:var(--text-main); font-size:0.88rem;">${v.name}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">Patente: ${v.patente} · ${v.year}</div>
+          </td>
+          <td>
+            <div style="font-weight:700;">${v.clienteNombre}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">Asesor: ${v.vendedor}</div>
+          </td>
+          <td style="font-family:var(--font-mono); font-weight:800; font-size:0.92rem;">${this.formatCurrency(v.precioVenta)}</td>
+          <td style="font-family:var(--font-mono); font-size:0.86rem; color:var(--text-muted);">${this.formatCurrency(v.precioCosto)}</td>
+          <td style="font-family:var(--font-mono); font-size:0.86rem; color:var(--text-muted);">${this.formatCurrency(v.gastosTaller)}</td>
+          <td style="font-family:var(--font-mono); font-weight:900; color:var(--status-success-text); font-size:0.95rem;">+${this.formatCurrency(v.gananciaNeta)}</td>
+          <td><span class="erp-badge badge-status-disponible">${v.margenRentabilidad}</span></td>
+          <td><span style="font-family:var(--font-mono); font-size:0.82rem;">${v.diasEnStock || 21} días</span></td>
+          <td>
+            <button type="button" class="btn-action-quick" style="padding:4px 8px;" onclick="window.erpApp.printSaleReceipt('${v.comprobanteId}')">
+              Recibo
+            </button>
+          </td>
+        </tr>
+      `;
+    });
+
+    tableBody.innerHTML = html;
+  }
+
+  // =========================================================================
+  // MÓDULO 13: Personal, RRHH & Equipo de Salón
+  // =========================================================================
+  initStaffModule() {}
+
+  renderStaffModule() {
+    const container = document.getElementById('staffGridContainer');
+    if (!container) return;
+
+    let html = '';
+    this.employees.forEach(e => {
+      html += `
+        <div class="staff-card">
+          <div class="staff-header">
+            <div class="staff-avatar">${e.avatar}</div>
+            <div>
+              <h4 style="font-size:1.05rem; font-weight:800; line-height:1.2;">${e.name}</h4>
+              <div style="font-size:0.78rem; color:var(--text-muted);">${e.role}</div>
+              <div style="margin-top:4px;">
+                <span class="erp-badge badge-web-sync">${e.department.toUpperCase()}</span>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:var(--bg-subtle); padding:12px; border-radius:8px; display:flex; flex-direction:column; gap:6px; font-size:0.78rem;">
+            <div><strong>Contacto:</strong> <span style="font-family:var(--font-mono);">${e.phone}</span></div>
+            <div><strong>Email:</strong> ${e.email}</div>
+            <div><strong>Turno:</strong> ${e.shift}</div>
+          </div>
+
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; border-top:1px solid var(--border-subtle); padding-top:10px;">
+            <span style="color:var(--text-muted);">Calificación Operativa:</span>
+            <div class="staff-rating-badge">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>${e.rating} / 5.0</span>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:8px; margin-top:6px;">
+            <a href="https://wa.me/549${e.phone.replace(/[^0-9]/g, '')}" target="_blank" rel="noopener" class="btn-action-quick" style="flex:1; justify-content:center; text-decoration:none;">
+              WhatsApp
+            </a>
+            <button type="button" class="btn-action-quick" style="padding:6px 12px;" onclick="window.erpApp.showToast('Legajo de ${e.name} auditado')">
+              Ficha
+            </button>
+          </div>
+        </div>
+      `;
+    });
+
+    container.innerHTML = html;
+  }
+
+  // =========================================================================
+  // MÓDULO 14: Configuración & Auditoría Inmutable
+  // =========================================================================
+  initAuditModule() {
+    const formSettings = document.getElementById('formCompanySettings');
+    formSettings?.addEventListener('submit', (e) => {
+      e.preventDefault();
+      this.saveCompanySettings();
+    });
+  }
+
+  saveCompanySettings() {
+    const name = document.getElementById('cfgCompanyName')?.value || 'Os-Car Automotores S.R.L.';
+    const cuit = document.getElementById('cfgCompanyCuit')?.value || '30-68942154-8';
+    const address = document.getElementById('cfgCompanyAddress')?.value || 'Av. San Martín 2840, Florencio Varela';
+    const phone = document.getElementById('cfgCompanyPhone')?.value || '011 4275-1489';
+    const wa = document.getElementById('cfgCompanyWhatsapp')?.value || '+54 9 11 6248-4394';
+
+    localStorage.setItem('oscar_erp_company_settings', JSON.stringify({ name, cuit, address, phone, wa }));
+    this.showToast('Parámetros fiscales y de concesionaria guardados correctamente');
+  }
+
+  renderAuditModule() {
+    const tableBody = document.getElementById('auditLogsTableBody');
+    if (!tableBody) return;
+
+    let html = '';
+    this.auditLogs.forEach(l => {
+      html += `
+        <tr>
+          <td><span style="font-family:var(--font-mono); font-size:0.78rem; color:var(--text-muted);">${l.timestamp}</span></td>
+          <td>
+            <div style="font-weight:700;">${l.user}</div>
+            <div style="font-size:0.72rem; color:var(--text-muted);">${l.role}</div>
+          </td>
+          <td><span class="erp-badge badge-web-sync">${l.module}</span></td>
+          <td><span class="erp-badge badge-0km">${l.action}</span></td>
+          <td><div style="font-size:0.82rem; color:var(--text-main); font-weight:600;">${l.detail}</div></td>
+          <td><span style="font-family:var(--font-mono); font-size:0.78rem;">${l.ip}</span></td>
+        </tr>
+      `;
+    });
+
+    tableBody.innerHTML = html;
   }
 
   // =========================================================================

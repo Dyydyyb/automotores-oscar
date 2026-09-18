@@ -1892,3 +1892,157 @@ a {
   transition: width 0.4s ease;
 }
 
+/* ==========================================================================
+   MÓDULO DE TALLER: TABLERO KANBAN DE 5 FASES
+   ========================================================================== */
+.workshop-kanban-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.workshop-column {
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.workshop-column-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--text-main);
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--border-subtle);
+}
+
+.workshop-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: var(--shadow-xs);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.workshop-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.workshop-card-title {
+  font-weight: 800;
+  font-size: 0.88rem;
+  color: var(--text-main);
+}
+
+.workshop-card-meta {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* ==========================================================================
+   MÓDULO DE PERSONAL & RRHH: TARJETAS DE EQUIPO
+   ========================================================================== */
+.staff-cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+  gap: 20px;
+}
+
+.staff-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: var(--shadow-xs);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.staff-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+}
+
+.staff-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.staff-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--bg-subtle);
+  color: var(--brand-red);
+  border: 2px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 900;
+  font-size: 1.1rem;
+  font-family: var(--font-heading);
+}
+
+.staff-rating-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: #B45309;
+  background: rgba(180, 83, 9, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* ==========================================================================
+   CHECKLIST REGISTRAL DNRPA & AUDITORÍAS
+   ========================================================================== */
+.doc-check-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  font-family: var(--font-mono);
+  letter-spacing: 0.2px;
+  transition: all 0.2s ease;
+}
+
+.doc-check-ok {
+  background: var(--status-success-bg);
+  color: var(--status-success-text);
+  border: 1px solid var(--status-success-border);
+}
+
+.doc-check-alert {
+  background: var(--status-danger-bg);
+  color: var(--status-danger-text);
+  border: 1px solid var(--status-danger-border);
+}
+
+.doc-check-pending {
+  background: var(--status-warning-bg);
+  color: var(--status-warning-text);
+  border: 1px solid var(--status-warning-border);
+}
+
+
