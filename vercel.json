@@ -1,6 +1,15 @@
 {
   "cleanUrls": true,
-  "trailingSlash": false,
+  "rewrites": [
+    {
+      "source": "/erp",
+      "destination": "/erp/index.html"
+    },
+    {
+      "source": "/erp/",
+      "destination": "/erp/index.html"
+    }
+  ],
   "headers": [
     {
       "source": "/(.*)",

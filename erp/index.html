@@ -2,9 +2,25 @@
 <html lang="es" data-theme="light">
 <head>
   <meta charset="UTF-8">
+  <script>
+    // Resolucion dinamica de ruta base para compatibilidad universal (Vercel /erp, raiz o subcarpeta)
+    (function() {
+      var p = window.location.pathname;
+      var isErp = p === '/erp' || p.startsWith('/erp/') || p.indexOf('/erp') !== -1;
+      var baseHref = isErp ? '/erp/' : './';
+      document.write('<base href="' + baseHref + '">');
+      if (p === '/erp') {
+        try { window.history.replaceState(null, '', '/erp/' + window.location.search + window.location.hash); } catch(e) {}
+      }
+    })();
+  </script>
+  <noscript>
+    <base href="/erp/">
+  </noscript>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Automotores Os-Car | ERP Sistema Integral de Gestión Concesionaria</title>
   <meta name="description" content="Sistema de gestión integral (ERP) para Automotores Os-Car. Control de flota 0km y usados, ventas, financiación en cuotas fijas, CRM y transferencias. Florencio Varela.">
+  <link rel="icon" type="image/png" href="assets/logo-oscar.png">
 
   <!-- Google Fonts: Outfit, Plus Jakarta Sans, JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1436,6 +1452,6 @@
   <!-- Scripts del ERP: Modelos de Datos, Motor SVG de Gráficos y Controlador SPA -->
   <script src="js/data.js"></script>
   <script src="js/charts.js"></script>
-  <script src="js/app.js"></script>
+  <script src="js/erp-app.js"></script>
 </body>
 </html>
