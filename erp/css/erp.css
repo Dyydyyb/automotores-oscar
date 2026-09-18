@@ -623,6 +623,39 @@ a {
   box-shadow: var(--shadow-xs);
 }
 
+.chart-type-selector {
+  display: inline-flex;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.chart-type-btn {
+  padding: 5px 11px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chart-type-btn:hover {
+  color: var(--text-main);
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.chart-type-btn.active {
+  background: var(--bg-surface);
+  color: var(--brand-red);
+  font-weight: 800;
+  box-shadow: var(--shadow-xs);
+}
+
 /* Grilla de KPIs de Dirección */
 .kpi-cards-grid {
   display: grid;
