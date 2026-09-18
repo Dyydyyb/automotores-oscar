@@ -1518,6 +1518,9 @@ class ERPApp {
   // =========================================================================
   // MÓDULO 7: Toma de Usados & Permutas en Parte de Pago
   // =========================================================================
+  // =========================================================================
+  // MÓDULO 7: Toma de Usados & Permutas en Parte de Pago
+  // =========================================================================
   initTradeInsModule() {}
 
   renderTradeInsModule() {
@@ -1526,31 +1529,45 @@ class ERPApp {
 
     let html = '';
     this.tradeIns.forEach(t => {
-      const spread = t.projectedResale - t.offeredPrice - t.reconditioningCost;
-      const spreadPerc = ((spread / t.offeredPrice) * 100).toFixed(1);
-      const isApproved = t.status === 'tasacion_aprobada';
-      const rawPhone = (t.clientPhone || '').replace(/[^0-9]/g, '');
+      const vName = t.name || t.vehicleDesc || 'Vehículo Usado';
+      const vImg = t.image || 'assets/vehicles/peugeot-208.jpg';
+      const vPatente = t.patente || 'S/D';
+      const vYear = t.year || 2018;
+      const vKm = typeof t.km === 'number' ? Number(t.km).toLocaleString('es-AR') : (t.km || '60.000');
+      const clientName = t.clientName || 'Cliente';
+      const clientPhone = t.clientPhone || '11-4275-1489';
+      const rawPhone = clientPhone.replace(/[^0-9]/g, '');
+
+      const offered = t.offeredPrice || t.valorTasadoAprobado || 10000000;
+      const pretended = t.pretendedValue || t.valorTasadoOfrecido || 11000000;
+      const resale = t.projectedResale || Math.round(offered * 1.25);
+      const recond = t.reconditioningCost || 400000;
+      const spread = resale - offered - recond;
+      const spreadPerc = ((spread / offered) * 100).toFixed(1);
+      const isApproved = t.status === 'tasacion_aprobada' || t.status === 'aprobada';
+      const score = t.inspectionScore || 94;
+      const summary = t.checklistSummary || t.observacionesMecanicas || 'Peritaje aprobado';
 
       html += `
         <tr>
           <td>
             <div class="vehicle-cell-title">
-              <img src="${t.image}" alt="${t.name}" class="vehicle-table-thumb">
+              <img src="${vImg}" alt="${vName}" class="vehicle-table-thumb">
               <div>
-                <div class="vehicle-name-strong">${t.name}</div>
-                <div class="vehicle-subinfo-cell">Año ${t.year} · ${Number(t.km).toLocaleString('es-AR')} km · Patente <strong>${t.patente}</strong></div>
+                <div class="vehicle-name-strong">${vName}</div>
+                <div class="vehicle-subinfo-cell">Año ${vYear} · ${vKm} km · Patente: <strong>${vPatente}</strong></div>
               </div>
             </div>
           </td>
           <td>
-            <div style="font-weight:700;">${t.clientName}</div>
+            <div style="font-weight:700;">${clientName}</div>
             <a href="https://wa.me/549${rawPhone}" target="_blank" rel="noopener" style="font-size:0.75rem; color:#166E30; font-family:var(--font-mono); text-decoration:none; font-weight:700;">
-              ${t.clientPhone}
+              ${clientPhone}
             </a>
           </td>
           <td>
-            <div style="font-size:0.76rem; color:var(--text-muted);">Pretendido: <del>${this.formatCurrency(t.pretendedValue)}</del></div>
-            <div style="font-family:var(--font-mono); font-weight:900; color:var(--brand-red); font-size:0.92rem;">Tasado: ${this.formatCurrency(t.offeredPrice)}</div>
+            <div style="font-size:0.74rem; color:var(--text-muted);">Pretendido: <del>${this.formatCurrency(pretended)}</del></div>
+            <div style="font-family:var(--font-mono); font-weight:900; color:var(--brand-red); font-size:0.92rem;">Tasado: ${this.formatCurrency(offered)}</div>
           </td>
           <td>
             <div style="font-family:var(--font-mono); font-weight:900; color:var(--status-success-text); font-size:0.92rem;">+${this.formatCurrency(spread)}</div>
@@ -1558,8 +1575,8 @@ class ERPApp {
           </td>
           <td>
             <div style="display:flex; align-items:center; gap:6px;">
-              <span class="doc-check-pill doc-check-ok">${t.inspectionScore}/100</span>
-              <span style="font-size:0.74rem; color:var(--text-muted);">${t.checklistSummary || 'Peritaje aprobado'}</span>
+              <span class="doc-check-pill doc-check-ok">${score}/100</span>
+              <span style="font-size:0.74rem; color:var(--text-muted);">${summary.slice(0, 32)}...</span>
             </div>
           </td>
           <td>
@@ -1573,8 +1590,8 @@ class ERPApp {
             </span>
           </td>
           <td>
-            <button type="button" class="btn-action-quick ${isApproved ? '' : 'btn-primary-red'}" style="padding:5px 9px;" onclick="window.erpApp.advanceTradeInStage('${t.id}')">
-              ${isApproved ? 'Ver Peritaje' : 'Aprobar Toma'}
+            <button type="button" class="btn-action-quick ${isApproved ? '' : 'btn-primary-red'}" onclick="window.erpApp.advanceTradeInStage('${t.id}')">
+              ${isApproved ? 'Ficha Peritaje' : 'Aprobar Toma'}
             </button>
           </td>
         </tr>
@@ -1588,12 +1605,13 @@ class ERPApp {
     const t = this.tradeIns.find(item => item.id === tradeInId);
     if (!t) return;
 
-    if (t.status !== 'tasacion_aprobada') {
+    if (t.status !== 'tasacion_aprobada' && t.status !== 'aprobada') {
       t.status = 'tasacion_aprobada';
       this.renderTradeInsModule();
-      this.showToast(`Tasación de ${t.name} aprobada para permuta por ${this.formatCurrency(t.offeredPrice)}`);
+      const val = t.offeredPrice || t.valorTasadoAprobado || 10000000;
+      this.showToast(`Tasación de ${t.name || t.vehicleDesc} aprobada por ${this.formatCurrency(val)}`);
     } else {
-      this.showToast(`La unidad ${t.name} ya cuenta con tasación peritada aprobada`);
+      this.showToast(`La unidad ${t.name || t.vehicleDesc} ya cuenta con tasación firme aprobada`);
     }
   }
 
@@ -1625,22 +1643,28 @@ class ERPApp {
               <span class="erp-badge badge-web-sync">${jobs.length}</span>
             </div>
             <div style="display:flex; flex-direction:column; gap:10px;">
-              ${jobs.map(j => `
-                <div class="workshop-card">
-                  <div class="workshop-card-title">${j.vehicleName}</div>
-                  <div class="workshop-card-meta">Patente: <strong>${j.patente}</strong> · ${j.orderId}</div>
-                  <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem;">
-                    <span style="color:var(--text-muted);">${j.technician}</span>
-                    <span style="font-family:var(--font-mono); font-weight:800; color:var(--brand-red);">${this.formatCurrency(j.cost)}</span>
+              ${jobs.map(j => {
+                const jId = j.id || j.orderId || 'TLR-01';
+                const jMech = j.mechanic || j.technician || 'Marcos Medina';
+                const jCost = j.costTotal || j.cost || 0;
+                const jCheck = j.checklistSummary || 'Checklist de taller en orden';
+                return `
+                  <div class="workshop-card">
+                    <div class="workshop-card-title">${j.vehicleName}</div>
+                    <div class="workshop-card-meta">Patente: <strong>${j.patente}</strong> · ${jId}</div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.75rem;">
+                      <span style="color:var(--text-muted); font-weight:700;">${jMech}</span>
+                      <span style="font-family:var(--font-mono); font-weight:900; color:var(--brand-red);">${this.formatCurrency(jCost)}</span>
+                    </div>
+                    <div style="font-size:0.72rem; color:var(--text-muted); background:var(--bg-subtle); padding:5px 8px; border-radius:4px; border:1px solid var(--border-subtle);">
+                      ${jCheck}
+                    </div>
+                    <button type="button" class="btn-action-quick" style="width:100%; justify-content:center; padding:6px; margin-top:4px;" onclick="window.erpApp.advanceWorkshopStage('${j.id}')">
+                      ${stage.key === 'listo' ? 'Unidad en Salón' : 'Avanzar Fase'}
+                    </button>
                   </div>
-                  <div style="font-size:0.72rem; color:var(--text-muted); background:var(--bg-subtle); padding:4px 6px; border-radius:4px;">
-                    ${j.checklistSummary || 'Checklist de taller en orden'}
-                  </div>
-                  <button type="button" class="btn-action-quick" style="width:100%; justify-content:center; padding:5px; margin-top:4px;" onclick="window.erpApp.advanceWorkshopStage('${j.id}')">
-                    ${stage.key === 'listo' ? 'Unidad en Salón' : 'Avanzar Fase'}
-                  </button>
-                </div>
-              `).join('') || '<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:16px 0;">Sin órdenes en esta etapa</div>'}
+                `;
+              }).join('') || '<div style="font-size:0.75rem; color:var(--text-muted); text-align:center; padding:18px 0;">Sin órdenes en esta etapa</div>'}
             </div>
           </div>
         `;
@@ -1651,24 +1675,30 @@ class ERPApp {
     if (tableBody) {
       let html = '';
       this.workshopJobs.forEach(j => {
+        const jId = j.id || j.orderId || 'TLR-01';
+        const jMech = j.mechanic || j.technician || 'Marcos Medina';
+        const jCost = j.costTotal || j.cost || 0;
+        const jSupplier = j.supplier || 'Taller Central Os-Car';
+        const jSummary = j.checklistSummary || 'Service integral y chequeo general';
+
         html += `
           <tr>
             <td>
-              <div style="font-family:var(--font-mono); font-weight:800; font-size:0.82rem; color:var(--brand-red);">${j.orderId}</div>
-              <div style="font-weight:700; font-size:0.88rem;">${j.vehicleName}</div>
-              <div style="font-size:0.74rem; color:var(--text-muted); font-family:var(--font-mono);">Patente: ${j.patente}</div>
+              <div style="font-family:var(--font-mono); font-weight:900; font-size:0.80rem; color:var(--brand-red);">${jId}</div>
+              <div style="font-weight:800; font-size:0.88rem;">${j.vehicleName}</div>
+              <div style="font-size:0.74rem; color:var(--text-muted); font-family:var(--font-mono);">Patente: <strong>${j.patente}</strong></div>
             </td>
             <td><span class="erp-badge badge-status-reservado">${j.stageLabel || j.stage.toUpperCase()}</span></td>
-            <td><strong>${j.technician}</strong></td>
-            <td><span class="erp-badge ${j.priority === 'alta' ? 'badge-0km' : 'badge-web-sync'}">${j.priority.toUpperCase()}</span></td>
+            <td><strong>${jMech}</strong></td>
+            <td><span class="erp-badge ${j.priority === 'alta' ? 'badge-0km' : 'badge-web-sync'}">${(j.priority || 'normal').toUpperCase()}</span></td>
             <td>
-              <div style="font-size:0.8rem; font-weight:600;">${j.checklistSummary || 'Service de fluidos y tren rodante'}</div>
-              <div style="font-size:0.72rem; color:var(--text-muted);">Proveedor: ${j.supplier || 'Taller Central Os-Car'}</div>
+              <div style="font-size:0.82rem; font-weight:700;">${jSummary}</div>
+              <div style="font-size:0.72rem; color:var(--text-muted);">Proveedor: ${jSupplier}</div>
             </td>
-            <td style="font-family:var(--font-mono); font-weight:900; color:var(--text-main);">${this.formatCurrency(j.cost)}</td>
-            <td><span style="font-family:var(--font-mono); font-size:0.8rem;">${j.estimatedDelivery}</span></td>
+            <td style="font-family:var(--font-mono); font-weight:900; color:var(--text-main); font-size:0.92rem;">${this.formatCurrency(jCost)}</td>
+            <td><span style="font-family:var(--font-mono); font-size:0.80rem;">${j.estimatedDelivery}</span></td>
             <td>
-              <button type="button" class="btn-action-quick btn-primary-red" style="padding:5px 9px;" onclick="window.erpApp.advanceWorkshopStage('${j.id}')">
+              <button type="button" class="btn-action-quick btn-primary-red" onclick="window.erpApp.advanceWorkshopStage('${j.id}')">
                 Avanzar Fase
               </button>
             </td>
@@ -1695,7 +1725,7 @@ class ERPApp {
       };
       job.stageLabel = stageTitles[job.stage] || job.stage;
       this.renderWorkshopModule();
-      this.showToast(`Orden ${job.orderId} de ${job.vehicleName} avanzada a ${job.stageLabel}`);
+      this.showToast(`Orden ${job.id || job.orderId} de ${job.vehicleName} avanzada a ${job.stageLabel}`);
     } else {
       this.showToast(`La unidad ${job.vehicleName} ya completó todo el protocolo de taller y está en salón.`);
     }
@@ -1712,6 +1742,15 @@ class ERPApp {
 
     let html = '';
     this.transfers.forEach(t => {
+      const bName = t.buyerName || t.buyer || 'Titular';
+      const bDni = t.buyerDni || t.buyerCuit || t.dni || 'DNI';
+      const f08 = t.form08 !== undefined ? t.form08 : (t.f08Status === 'firmado');
+      const f12 = t.verifF12 !== undefined ? t.verifF12 : (t.f12Verificacion === 'aprobado');
+      const dom = t.dominioDnrpa !== undefined ? t.dominioDnrpa : true;
+      const deudas = t.libreDeudas !== undefined ? t.libreDeudas : (t.patentesStatus === 'al_dia');
+      const cedula = t.cedulaDigital !== undefined ? t.cedulaDigital : (t.cedulaStatus === 'emitida');
+      const isDone = (t.status === 'finalizado' || t.stage === 'finalizado');
+
       const pill = (active, key) => `
         <span class="doc-check-pill ${active ? 'doc-check-ok' : 'doc-check-alert'}" style="cursor:pointer;" onclick="window.erpApp.toggleTransferDoc('${t.id}', '${key}')" title="Click para alternar estado">
           ${active ? 'OK' : 'PENDIENTE'}
@@ -1723,25 +1762,25 @@ class ERPApp {
           <td>
             <div style="font-family:var(--font-mono); font-weight:800; font-size:0.84rem; color:var(--brand-red);">${t.id}</div>
             <div style="font-weight:700;">${t.vehicleName}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">Patente: ${t.patente}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">Patente: <strong>${t.patente}</strong></div>
           </td>
           <td>
-            <div style="font-weight:700;">${t.buyerName}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">DNI: ${t.buyerDni}</div>
+            <div style="font-weight:700;">${bName}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">${bDni}</div>
           </td>
-          <td>${pill(t.form08, 'form08')}</td>
-          <td>${pill(t.verifF12, 'verifF12')}</td>
-          <td>${pill(t.dominioDnrpa, 'dominioDnrpa')}</td>
-          <td>${pill(t.libreDeudas, 'libreDeudas')}</td>
-          <td>${pill(t.cedulaDigital, 'cedulaDigital')}</td>
-          <td><strong>${t.gestor}</strong></td>
+          <td>${pill(f08, 'form08')}</td>
+          <td>${pill(f12, 'verifF12')}</td>
+          <td>${pill(dom, 'dominioDnrpa')}</td>
+          <td>${pill(deudas, 'libreDeudas')}</td>
+          <td>${pill(cedula, 'cedulaDigital')}</td>
+          <td><strong>${t.gestor || 'Dra. Lorena Peralta'}</strong></td>
           <td>
-            <span class="erp-badge ${t.status === 'finalizado' ? 'badge-status-disponible' : 'badge-status-reservado'}">
-              ${t.status === 'finalizado' ? 'Listo Retiro' : 'En Trámite DNRPA'}
+            <span class="erp-badge ${isDone ? 'badge-status-disponible' : 'badge-status-reservado'}">
+              ${isDone ? 'Listo Retiro' : 'En Trámite DNRPA'}
             </span>
           </td>
           <td>
-            <button type="button" class="btn-action-quick" style="padding:5px 9px;" onclick="window.erpApp.printTransferDocket('${t.id}')">
+            <button type="button" class="btn-action-quick" onclick="window.erpApp.printTransferDocket('${t.id}')">
               Legajo
             </button>
           </td>
@@ -1777,19 +1816,26 @@ class ERPApp {
 
     let html = '';
     this.webPublications.forEach(p => {
+      const vName = p.vehicleName || p.name || 'Vehículo';
+      const vImg = p.image || 'assets/vehicles/peugeot-208.png';
+      const vPhotos = p.photoCount || p.photosCount || 16;
+      const vViews = p.views || p.viewsCount || 0;
+      const vLeads = p.leads || p.leadsCount || 0;
+      const isOnline = p.online !== undefined ? p.online : (p.status === 'activo');
+
       html += `
         <tr>
           <td>
             <div class="vehicle-cell-title">
-              <img src="${p.image}" alt="${p.vehicleName}" class="vehicle-table-thumb">
+              <img src="${vImg}" alt="${vName}" class="vehicle-table-thumb">
               <div>
-                <div class="vehicle-name-strong">${p.vehicleName}</div>
+                <div class="vehicle-name-strong">${vName}</div>
                 <div class="vehicle-subinfo-cell">Patente: <strong>${p.patente}</strong> · ${p.id}</div>
               </div>
             </div>
           </td>
           <td>
-            <span class="doc-check-pill doc-check-ok">${p.photoCount}/16 HD (100%)</span>
+            <span class="doc-check-pill doc-check-ok">${vPhotos}/16 HD (100%)</span>
           </td>
           <td>
             <div style="display:flex; gap:4px;">
@@ -1804,18 +1850,18 @@ class ERPApp {
             </div>
           </td>
           <td>
-            <div style="font-family:var(--font-mono); font-weight:800; font-size:0.86rem;">${Number(p.views).toLocaleString('es-AR')} visitas</div>
-            <div style="font-size:0.74rem; color:var(--brand-red); font-weight:800;">${p.leads} consultas directas</div>
+            <div style="font-family:var(--font-mono); font-weight:800; font-size:0.86rem;">${Number(vViews).toLocaleString('es-AR')} visitas</div>
+            <div style="font-size:0.74rem; color:var(--brand-red); font-weight:800;">${vLeads} consultas directas</div>
           </td>
           <td><span style="font-family:var(--font-mono); font-size:0.78rem;">${p.lastSync}</span></td>
           <td>
-            <span class="erp-badge ${p.online ? 'badge-status-disponible' : 'badge-status-vendido'}">
-              ${p.online ? 'ONLINE' : 'PAUSADO'}
+            <span class="erp-badge ${isOnline ? 'badge-status-disponible' : 'badge-status-vendido'}">
+              ${isOnline ? 'ONLINE' : 'PAUSADO'}
             </span>
           </td>
           <td>
-            <button type="button" class="btn-action-quick ${p.online ? '' : 'btn-primary-red'}" style="padding:5px 9px;" onclick="window.erpApp.toggleWebPublication('${p.id}')">
-              ${p.online ? 'Pausar' : 'Activar Web'}
+            <button type="button" class="btn-action-quick ${isOnline ? '' : 'btn-primary-red'}" onclick="window.erpApp.toggleWebPublication('${p.id}')">
+              ${isOnline ? 'Pausar' : 'Activar Web'}
             </button>
           </td>
         </tr>
@@ -1829,8 +1875,9 @@ class ERPApp {
     const p = this.webPublications.find(item => item.id === pubId);
     if (!p) return;
     p.online = !p.online;
+    p.status = p.online ? 'activo' : 'pausado';
     this.renderWebPublicationModule();
-    this.showToast(`Publicación de ${p.vehicleName} ahora está ${p.online ? 'ONLINE en la web pública' : 'PAUSADA'}`);
+    this.showToast(`Publicación de ${p.vehicleName || p.name} ahora está ${p.online ? 'ONLINE en la web pública' : 'PAUSADA'}`);
   }
 
   // =========================================================================
@@ -1845,19 +1892,25 @@ class ERPApp {
     let html = '';
     this.appointments.forEach(a => {
       const isConfirmed = a.status === 'confirmado';
+      const cName = a.clientName || a.client || 'Cliente';
+      const cPhone = a.clientPhone || a.phone || '+54 9 11 4275-1489';
+      const vName = a.vehicleName || a.vehicle || 'Vehículo';
+      const advisor = a.advisor || a.seller || 'Asesor Comercial';
+      const aHour = a.hour || a.time || '10:00';
+
       html += `
         <tr>
           <td>
             <div style="font-weight:800; color:var(--text-main); font-size:0.88rem;">${a.date}</div>
-            <div style="font-family:var(--font-mono); font-weight:900; color:var(--brand-red); font-size:0.92rem;">${a.hour} hs</div>
+            <div style="font-family:var(--font-mono); font-weight:900; color:var(--brand-red); font-size:0.92rem;">${aHour} hs</div>
           </td>
           <td><span class="erp-badge ${a.type === 'entrega_0km' ? 'badge-0km' : 'badge-usado'}">${a.typeLabel || a.type.toUpperCase()}</span></td>
           <td>
-            <div style="font-weight:700;">${a.clientName}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">${a.clientPhone}</div>
+            <div style="font-weight:700;">${cName}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">${cPhone}</div>
           </td>
-          <td><strong>${a.vehicleName}</strong></td>
-          <td>${a.advisor}</td>
+          <td><strong>${vName}</strong></td>
+          <td>${advisor}</td>
           <td><div style="font-size:0.78rem; color:var(--text-muted); max-width:220px;">${a.notes}</div></td>
           <td>
             <span class="erp-badge ${isConfirmed ? 'badge-status-disponible' : 'badge-status-reservado'}">
@@ -1866,10 +1919,10 @@ class ERPApp {
           </td>
           <td>
             <div style="display:flex; gap:6px;">
-              <button type="button" class="btn-action-quick" style="padding:4px 8px;" onclick="window.erpApp.sendAppointmentWaReminder('${a.id}')">
+              <button type="button" class="btn-action-quick btn-whatsapp" onclick="window.erpApp.sendAppointmentWaReminder('${a.id}')">
                 WA
               </button>
-              <button type="button" class="btn-action-quick ${isConfirmed ? '' : 'btn-primary-red'}" style="padding:4px 8px;" onclick="window.erpApp.confirmAppointment('${a.id}')">
+              <button type="button" class="btn-action-quick ${isConfirmed ? '' : 'btn-primary-red'}" onclick="window.erpApp.confirmAppointment('${a.id}')">
                 ${isConfirmed ? 'OK' : 'Confirmar'}
               </button>
             </div>
@@ -1884,10 +1937,14 @@ class ERPApp {
   sendAppointmentWaReminder(appId) {
     const a = this.appointments.find(item => item.id === appId);
     if (!a) return;
-    const rawPhone = (a.clientPhone || '').replace(/[^0-9]/g, '');
-    const msg = `Hola ${a.clientName}, te recordamos tu turno en Automotores Os-Car para el día ${a.date} a las ${a.hour} hs (${a.typeLabel || a.type}) por la unidad ${a.vehicleName}. Te esperamos en Av. San Martín 2840, Florencio Varela.`;
+    const cPhone = a.clientPhone || a.phone || '';
+    const rawPhone = cPhone.replace(/[^0-9]/g, '');
+    const cName = a.clientName || a.client || 'Cliente';
+    const vName = a.vehicleName || a.vehicle || 'la unidad';
+    const aHour = a.hour || a.time || 'horario convenido';
+    const msg = `Hola ${cName}, te recordamos tu turno en Automotores Os-Car para el día ${a.date} a las ${aHour} hs (${a.typeLabel || a.type}) por la unidad ${vName}. Te esperamos en Av. San Martín 2840, Florencio Varela.`;
     window.open(`https://wa.me/549${rawPhone}?text=${encodeURIComponent(msg)}`, '_blank');
-    this.showToast(`Recordatorio de WhatsApp abierto para ${a.clientName}`);
+    this.showToast(`Recordatorio de WhatsApp abierto para ${cName}`);
   }
 
   confirmAppointment(appId) {
@@ -1895,7 +1952,7 @@ class ERPApp {
     if (!a) return;
     a.status = 'confirmado';
     this.renderAppointmentsModule();
-    this.showToast(`Turno de ${a.clientName} confirmado exitosamente`);
+    this.showToast(`Turno de ${a.clientName || a.client} confirmado exitosamente`);
   }
 
   // =========================================================================
@@ -1913,7 +1970,7 @@ class ERPApp {
         <tr>
           <td>
             <div style="font-weight:800; color:var(--text-main); font-size:0.88rem;">${v.name}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">Patente: ${v.patente} · ${v.year}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted); font-family:var(--font-mono);">Patente: <strong>${v.patente}</strong> · ${v.year}</div>
           </td>
           <td>
             <div style="font-weight:700;">${v.clienteNombre}</div>
@@ -1926,7 +1983,7 @@ class ERPApp {
           <td><span class="erp-badge badge-status-disponible">${v.margenRentabilidad}</span></td>
           <td><span style="font-family:var(--font-mono); font-size:0.82rem;">${v.diasEnStock || 21} días</span></td>
           <td>
-            <button type="button" class="btn-action-quick" style="padding:4px 8px;" onclick="window.erpApp.printSaleReceipt('${v.comprobanteId}')">
+            <button type="button" class="btn-action-quick" onclick="window.erpApp.printSaleReceipt('${v.comprobanteId}')">
               Recibo
             </button>
           </td>
@@ -1948,38 +2005,42 @@ class ERPApp {
 
     let html = '';
     this.employees.forEach(e => {
+      const avatarText = e.avatar || (e.name ? e.name.split(' ').map(n => n[0]).join('').slice(0, 2) : 'OC').toUpperCase();
+      const rawPhone = (e.phone || '').replace(/[^0-9]/g, '');
+
       html += `
         <div class="staff-card">
           <div class="staff-header">
-            <div class="staff-avatar">${e.avatar}</div>
+            <div class="staff-avatar">${avatarText}</div>
             <div>
-              <h4 style="font-size:1.05rem; font-weight:800; line-height:1.2;">${e.name}</h4>
-              <div style="font-size:0.78rem; color:var(--text-muted);">${e.role}</div>
-              <div style="margin-top:4px;">
-                <span class="erp-badge badge-web-sync">${e.department.toUpperCase()}</span>
+              <h4 style="font-size:1.05rem; font-weight:800; line-height:1.2; margin-bottom:2px;">${e.name}</h4>
+              <div style="font-size:0.78rem; color:var(--text-muted); font-weight:600;">${e.role}</div>
+              <div style="margin-top:6px;">
+                <span class="erp-badge badge-web-sync">${(e.department || 'Operaciones').toUpperCase()}</span>
               </div>
             </div>
           </div>
 
-          <div style="background:var(--bg-subtle); padding:12px; border-radius:8px; display:flex; flex-direction:column; gap:6px; font-size:0.78rem;">
-            <div><strong>Contacto:</strong> <span style="font-family:var(--font-mono);">${e.phone}</span></div>
+          <div style="background:var(--bg-subtle); padding:12px 14px; border-radius:8px; border:1px solid var(--border-subtle); display:flex; flex-direction:column; gap:6px; font-size:0.78rem;">
+            <div><strong>Contacto:</strong> <span style="font-family:var(--font-mono); font-weight:700;">${e.phone}</span></div>
             <div><strong>Email:</strong> ${e.email}</div>
             <div><strong>Turno:</strong> ${e.shift}</div>
           </div>
 
-          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; border-top:1px solid var(--border-subtle); padding-top:10px;">
-            <span style="color:var(--text-muted);">Calificación Operativa:</span>
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.82rem; border-top:1px solid var(--border-subtle); padding-top:12px;">
+            <span style="color:var(--text-muted); font-weight:600;">Calificación Operativa:</span>
             <div class="staff-rating-badge">
-              <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-              <span>${e.rating} / 5.0</span>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>${e.rating || 4.9} / 5.0</span>
             </div>
           </div>
 
-          <div style="display:flex; gap:8px; margin-top:6px;">
-            <a href="https://wa.me/549${e.phone.replace(/[^0-9]/g, '')}" target="_blank" rel="noopener" class="btn-action-quick" style="flex:1; justify-content:center; text-decoration:none;">
-              WhatsApp
+          <div style="display:flex; gap:8px; margin-top:8px;">
+            <a href="https://wa.me/549${rawPhone}" target="_blank" rel="noopener" class="btn-action-quick btn-whatsapp" style="flex:1;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              <span>WhatsApp</span>
             </a>
-            <button type="button" class="btn-action-quick" style="padding:6px 12px;" onclick="window.erpApp.showToast('Legajo de ${e.name} auditado')">
+            <button type="button" class="btn-action-quick" onclick="window.erpApp.showToast('Legajo de ${e.name} auditado')">
               Ficha
             </button>
           </div>

@@ -496,32 +496,56 @@ a {
 .btn-action-quick {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   font-family: var(--font-heading);
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 700;
-  padding: 7px 12px;
-  border-radius: 7px;
-  background: var(--bg-subtle);
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: var(--bg-surface);
   color: var(--text-main);
   border: 1px solid var(--border-subtle);
+  cursor: pointer;
+  text-decoration: none;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
 .btn-action-quick:hover {
-  background: var(--border-subtle);
+  background: var(--bg-subtle);
+  border-color: #CBD5E1;
   color: var(--text-main);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 }
 
 .btn-action-quick.btn-primary-red {
-  background-color: var(--brand-red);
+  background: linear-gradient(135deg, #A81E24 0%, #8F161C 100%);
   color: #FFFFFF;
-  border-color: var(--brand-red);
-  box-shadow: 0 2px 8px rgba(168, 30, 36, 0.25);
+  border: 1px solid #8F161C;
+  box-shadow: 0 2px 6px rgba(168, 30, 36, 0.28);
 }
 
 .btn-action-quick.btn-primary-red:hover {
-  background-color: var(--brand-red-hover);
-  border-color: var(--brand-red-hover);
+  background: linear-gradient(135deg, #B9242B 0%, #A01920 100%);
+  box-shadow: 0 4px 10px rgba(168, 30, 36, 0.38);
+  transform: translateY(-1px);
+}
+
+.btn-action-quick.btn-whatsapp {
+  background: rgba(22, 110, 48, 0.08);
+  color: #166E30;
+  border-color: rgba(22, 110, 48, 0.25);
+  font-weight: 800;
+}
+
+.btn-action-quick.btn-whatsapp:hover {
+  background: #166E30;
+  color: #FFFFFF;
+  border-color: #166E30;
+  box-shadow: 0 2px 6px rgba(22, 110, 48, 0.3);
 }
 
 .theme-toggle-btn {
@@ -932,41 +956,92 @@ a {
   box-shadow: var(--shadow-xs);
 }
 
-/* Data Table de Vehículos */
-.data-table-card {
+/* Data Table de Vehículos & Grillas ERP Enterprise */
+.data-table-card,
+.erp-table-responsive {
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 14px;
-  box-shadow: var(--shadow-xs);
-  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  overflow-x: auto;
+  margin-bottom: 8px;
 }
 
-.data-table {
+.data-table,
+.erp-data-table {
   width: 100%;
-  border-collapse: collapse;
+  min-width: 840px;
+  border-collapse: separate;
+  border-spacing: 0;
   text-align: left;
 }
 
-.data-table th {
+.erp-table-responsive thead tr:first-child th:first-child {
+  border-top-left-radius: 11px;
+}
+
+.erp-table-responsive thead tr:first-child th:last-child {
+  border-top-right-radius: 11px;
+}
+
+.erp-table-responsive tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 11px;
+}
+
+.erp-table-responsive tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 11px;
+}
+
+.data-table thead,
+.erp-data-table thead {
+  background: var(--bg-subtle);
+}
+
+.data-table th,
+.erp-data-table th {
   background-color: var(--bg-subtle);
-  padding: 12px 16px;
-  font-size: 0.74rem;
+  padding: 13px 18px;
+  font-size: 0.72rem;
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.6px;
   color: var(--text-muted);
-  border-bottom: 1px solid var(--border-subtle);
+  border-bottom: 2px solid var(--border-subtle);
+  white-space: nowrap;
 }
 
-.data-table td {
-  padding: 14px 16px;
-  font-size: 0.88rem;
+.data-table td,
+.erp-data-table td {
+  padding: 14px 18px;
+  font-size: 0.85rem;
   border-bottom: 1px solid var(--border-subtle);
   vertical-align: middle;
+  color: var(--text-main);
 }
 
-.data-table tr:hover td {
-  background-color: rgba(168, 30, 36, 0.02);
+.data-table tbody tr:last-child td,
+.erp-data-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.data-table tbody tr:nth-child(even) td,
+.erp-data-table tbody tr:nth-child(even) td {
+  background-color: rgba(248, 250, 252, 0.6);
+}
+
+[data-theme="dark"] .data-table tbody tr:nth-child(even) td,
+[data-theme="dark"] .erp-data-table tbody tr:nth-child(even) td {
+  background-color: rgba(30, 41, 59, 0.35);
+}
+
+.data-table tbody tr:hover td,
+.erp-data-table tbody tr:hover td {
+  background-color: rgba(168, 30, 36, 0.035);
+}
+
+[data-theme="dark"] .data-table tbody tr:hover td,
+[data-theme="dark"] .erp-data-table tbody tr:hover td {
+  background-color: rgba(168, 30, 36, 0.12);
 }
 
 .vehicle-table-thumb {
